@@ -1,0 +1,192 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР5: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 5</h2><div class="sub">Обробка раціональних та комплексних чисел мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 5.1: Список раціональних чисел (дробів)</h2><a class='dl' href='../assets/lab5/task1.scm' download>⬇ task1_fractions.scm</a><pre><code>;; =====================================================================
+;; ЛР5, варіант 3, задача 3.1. Список раціональних чисел (дробів) a/b.
+;; Дріб — пара (a . b) із b &gt; 0. Бібліотечні функції НОД/НСК/abs не використовуються —
+;; усі потрібні процедури написані нижче. Дії:
+;;  1) два нових списки: дроби менші за заданий і дроби більші за заданий;
+;;  2) приведення дробів до спільного знаменника та перевірка, чи утворюють вони
+;;     арифметичну прогресію;
+;;  3) пошук пари дробів, сума яких найближча до 1.
+;; =====================================================================
+
+;; ---------- Арифметика цілих ----------
+(define (iabs x) (if (&lt; x 0) (- x) x))
+(define (gcd2 a b) (if (= b 0) (iabs a) (gcd2 b (remainder a b))))
+(define (lcm2 a b) (quotient (* (iabs a) (iabs b)) (gcd2 a b)))
+
+;; ---------- Дроби ----------
+(define (num f) (car f))
+(define (den f) (cdr f))
+(define (make-frac a b) (cons a b))
+(define (reduce f) (make-frac (quotient (num f) (gcd2 (num f) (den f))) (quotient (den f) (gcd2 (num f) (den f)))))
+
+;; a1/b1 &lt; a2/b2  &lt;=&gt;  a1*b2 &lt; a2*b1  (знаменники додатні)
+(define (frac&lt;? f g) (&lt; (* (num f) (den g)) (* (num g) (den f))))
+(define (frac&gt;? f g) (frac&lt;? g f))
+
+(define (frac+ f g)
+  (make-frac (+ (* (num f) (den g)) (* (num g) (den f))) (* (den f) (den g))))
+
+;; Відстань від суми до 1, у вигляді дробу |ad + cb - bd| / (bd)
+(define (dist-to-one f g)
+  (make-frac (iabs (- (+ (* (num f) (den g)) (* (num g) (den f))) (* (den f) (den g))))
+             (* (den f) (den g))))
+
+;; Вхідні дані: список пар (a b) → список дробів
+(define (list-&gt;fracs lst)
+  (if (null? lst) &#x27;() (cons (make-frac (car (car lst)) (cadr (car lst))) (list-&gt;fracs (cdr lst)))))
+
+;; ---------- Виведення ----------
+(define (frac-&gt;string f)
+  (string-append (number-&gt;string (num f)) &quot;/&quot; (number-&gt;string (den f))))
+(define (print-fracs lst)
+  (cond ((null? lst) (display &quot;(порожній список)&quot;))
+        ((null? (cdr lst)) (display (frac-&gt;string (car lst))))
+        (else (display (frac-&gt;string (car lst))) (display &quot;  &quot;) (print-fracs (cdr lst)))))
+(define (show label lst) (display label) (print-fracs lst) (newline))
+
+;; ---------- Завдання 1: менші / більші за заданий дріб ----------
+(define (select-less lst g)
+  (cond ((null? lst) &#x27;())
+        ((frac&lt;? (car lst) g) (cons (car lst) (select-less (cdr lst) g)))
+        (else (select-less (cdr lst) g))))
+(define (select-greater lst g)
+  (cond ((null? lst) &#x27;())
+        ((frac&gt;? (car lst) g) (cons (car lst) (select-greater (cdr lst) g)))
+        (else (select-greater (cdr lst) g))))
+
+;; ---------- Завдання 2: спільний знаменник, арифметична прогресія ----------
+(define (common-denominator lst)
+  (if (null? lst) 1 (lcm2 (den (car lst)) (common-denominator (cdr lst)))))
+
+(define (to-denominator lst d)
+  (if (null? lst)
+      &#x27;()
+      (cons (make-frac (* (num (car lst)) (quotient d (den (car lst)))) d)
+            (to-denominator (cdr lst) d))))
+
+;; Чисельники однакового знаменника утворюють арифметичну прогресію, якщо різниці сусідніх рівні
+(define (arithmetic? lst)
+  (or (null? lst) (null? (cdr lst)) (null? (cddr lst))
+      (and (= (- (num (cadr lst)) (num (car lst))) (- (num (caddr lst)) (num (cadr lst))))
+           (arithmetic? (cdr lst)))))
+
+;; Сортування вставками (щоб перевірити прогресію й у впорядкованому вигляді)
+(define (insert-sorted f sorted)
+  (cond ((null? sorted) (list f))
+        ((frac&lt;? f (car sorted)) (cons f sorted))
+        (else (cons (car sorted) (insert-sorted f (cdr sorted))))))
+(define (sort-fracs lst)
+  (if (null? lst) &#x27;() (insert-sorted (car lst) (sort-fracs (cdr lst)))))
+
+;; ---------- Завдання 3: пара із сумою, найближчою до 1 ----------
+;; Результат — список (f g відстань) або &#x27;() , якщо дробів менше двох
+(define (better a b) (cond ((null? a) b) ((null? b) a) ((frac&lt;? (caddr b) (caddr a)) b) (else a)))
+(define (best-with f lst)
+  (if (null? lst)
+      &#x27;()
+      (better (list f (car lst) (dist-to-one f (car lst))) (best-with f (cdr lst)))))
+(define (best-pair lst)
+  (if (or (null? lst) (null? (cdr lst)))
+      &#x27;()
+      (better (best-with (car lst) (cdr lst)) (best-pair (cdr lst)))))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Список дробів у вигляді ((a b) (c d) ...): &quot;) (ask-given (read)))
+(define (ask-given lst)
+  (display &quot;Заданий дріб (a b): &quot;) (run (list-&gt;fracs lst) (read)))
+
+(define (run fracs g)
+  (newline)
+  (show &quot;Вихідний список:            &quot; fracs)
+  (part1 fracs (make-frac (car g) (cadr g)))
+  (part2 fracs)
+  (part3 fracs))
+
+(define (part1 fracs g)
+  (newline)
+  (display &quot;1) Заданий дріб &quot;) (display (frac-&gt;string g)) (newline)
+  (show &quot;   менші за заданий:       &quot; (select-less fracs g))
+  (show &quot;   більші за заданий:      &quot; (select-greater fracs g)))
+
+(define (part2 fracs)
+  (newline)
+  (display &quot;2) Спільний знаменник = &quot;) (display (common-denominator fracs)) (newline)
+  (part2b (to-denominator fracs (common-denominator fracs))))
+(define (part2b common)
+  (show &quot;   дроби зі спільним знаменником: &quot; common)
+  (display &quot;   арифметична прогресія (у заданому порядку): &quot;)
+  (display (if (arithmetic? common) &quot;так&quot; &quot;ні&quot;)) (newline)
+  (display &quot;   арифметична прогресія (після впорядкування): &quot;)
+  (display (if (arithmetic? (sort-fracs common)) &quot;так&quot; &quot;ні&quot;)) (newline))
+
+(define (part3 fracs)
+  (newline)
+  (display &quot;3) Пара дробів із сумою, найближчою до 1: &quot;)
+  (print-pair (best-pair fracs)))
+(define (print-pair r)
+  (if (null? r)
+      (begin (display &quot;недостатньо дробів&quot;) (newline))
+      (begin (display (frac-&gt;string (car r))) (display &quot; + &quot;) (display (frac-&gt;string (cadr r)))
+             (display &quot; = &quot;) (display (frac-&gt;string (reduce (frac+ (car r) (cadr r)))))
+             (display &quot;,  відстань до 1: &quot;) (display (frac-&gt;string (reduce (caddr r))))
+             (newline))))
+</code></pre><h2>Задача 5.2: Список комплексних чисел</h2><a class='dl' href='../assets/lab5/task2.scm' download>⬇ task2_complex.scm</a><pre><code>;; =====================================================================
+;; ЛР5, варіант 3, задача 3.2. Список комплексних чисел в алгебраїчній формі a + ib.
+;; Виведення списку; обчислення суми та добутку всіх чисел списку.
+;; Комплексне число — пара (a . b): a — дійсна частина, b — уявна. Вбудовані комплексні
+;; типи й бібліотеки не використовуються.
+;;   (a + ib) + (c + id) = (a + c) + i(b + d)
+;;   (a + ib) * (c + id) = (ac - bd) + i(ad + bc)
+;; Нейтральні елементи: 0 + 0i для суми, 1 + 0i для добутку.
+;; =====================================================================
+
+(define (re z) (car z))
+(define (im z) (cdr z))
+(define (make-complex a b) (cons a b))
+
+(define (c+ z w) (make-complex (+ (re z) (re w)) (+ (im z) (im w))))
+(define (c* z w)
+  (make-complex (- (* (re z) (re w)) (* (im z) (im w)))
+                (+ (* (re z) (im w)) (* (im z) (re w)))))
+
+;; Сума та добуток списку — рекурсивне згортання
+(define (sum-list lst)
+  (if (null? lst) (make-complex 0 0) (c+ (car lst) (sum-list (cdr lst)))))
+(define (product-list lst)
+  (if (null? lst) (make-complex 1 0) (c* (car lst) (product-list (cdr lst)))))
+
+;; Вхідні дані: список пар (a b)
+(define (list-&gt;complex lst)
+  (if (null? lst)
+      &#x27;()
+      (cons (make-complex (car (car lst)) (cadr (car lst))) (list-&gt;complex (cdr lst)))))
+
+;; ---------- Виведення ----------
+;; Формат &quot;a+bi&quot; / &quot;a-bi&quot;; наприклад 3+2i, 1-4i, 0+0i
+(define (complex-&gt;string z)
+  (string-append (number-&gt;string (re z))
+                 (if (&lt; (im z) 0) &quot;-&quot; &quot;+&quot;)
+                 (number-&gt;string (if (&lt; (im z) 0) (- (im z)) (im z)))
+                 &quot;i&quot;))
+
+(define (print-list lst)
+  (cond ((null? lst) (display &quot;(порожній список)&quot;))
+        ((null? (cdr lst)) (display (complex-&gt;string (car lst))))
+        (else (display (complex-&gt;string (car lst))) (display &quot;,  &quot;) (print-list (cdr lst)))))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Список комплексних чисел у вигляді ((a b) (c d) ...): &quot;)
+  (run (list-&gt;complex (read))))
+
+(define (run lst)
+  (newline)
+  (display &quot;Список:  &quot;) (print-list lst) (newline)
+  (display &quot;Сума:    &quot;) (display (complex-&gt;string (sum-list lst))) (newline)
+  (display &quot;Добуток: &quot;) (display (complex-&gt;string (product-list lst))) (newline))
+</code></pre></main></div></body></html>

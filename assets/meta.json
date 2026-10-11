@@ -1,0 +1,597 @@
+{
+ "1.1": {
+  "metrics": {
+   "lines": 118,
+   "code": 80,
+   "comments": 26,
+   "defines": 18,
+   "max_len": 19,
+   "avg_len": 4.4,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Контрольний тест A(2, 2) = 7",
+    "input": "2\n2\n",
+    "n": 1
+   },
+   {
+    "label": "A(3, 6) = 509",
+    "input": "3\n6\n",
+    "n": 2
+   }
+  ],
+  "hipo": {
+   "nodes": 13,
+   "edges": 14
+  }
+ },
+ "1.2": {
+  "metrics": {
+   "lines": 42,
+   "code": 20,
+   "comments": 15,
+   "defines": 6,
+   "max_len": 5,
+   "avg_len": 3.3,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Контрольний тест: n = 18 → 2 3 3",
+    "input": "18\n",
+    "n": 1
+   },
+   {
+    "label": "n = 84 → 2 2 3 7",
+    "input": "84\n",
+    "n": 2
+   },
+   {
+    "label": "Просте число n = 97",
+    "input": "97\n",
+    "n": 3
+   },
+   {
+    "label": "Велике число n = 600851475143",
+    "input": "600851475143\n",
+    "n": 4
+   },
+   {
+    "label": "Некоректне n = 1",
+    "input": "1\n",
+    "n": 5
+   }
+  ],
+  "hipo": {
+   "nodes": 6,
+   "edges": 5
+  }
+ },
+ "2.1": {
+  "metrics": {
+   "lines": 98,
+   "code": 54,
+   "comments": 30,
+   "defines": 18,
+   "max_len": 8,
+   "avg_len": 3.0,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Стійкий спосіб, eps = 10⁻⁶, x від −1 до 4 з кроком 0,5",
+    "input": "-1\n4\n0.5\n0.000001\n2\n",
+    "n": 1
+   },
+   {
+    "label": "Прямий знакозмінний ряд (втрата точності при x > 2)",
+    "input": "-1\n4\n0.5\n0.000001\n1\n",
+    "n": 2
+   },
+   {
+    "label": "Точність eps = 0,01",
+    "input": "0\n3\n0.5\n0.01\n2\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 14,
+   "edges": 14
+  }
+ },
+ "2.2": {
+  "metrics": {
+   "lines": 61,
+   "code": 26,
+   "comments": 26,
+   "defines": 8,
+   "max_len": 6,
+   "avg_len": 3.2,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "eps = 0,01",
+    "input": "0.01\n",
+    "n": 1
+   },
+   {
+    "label": "eps = 10⁻⁴",
+    "input": "0.0001\n",
+    "n": 2
+   },
+   {
+    "label": "eps = 10⁻⁶",
+    "input": "0.000001\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 8,
+   "edges": 8
+  }
+ },
+ "3.1": {
+  "metrics": {
+   "lines": 80,
+   "code": 51,
+   "comments": 18,
+   "defines": 13,
+   "max_len": 14,
+   "avg_len": 3.9,
+   "forbidden": {
+    "let": 2,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Інтервал [0, 1], eps = 10⁻⁶",
+    "input": "0\n1\n0.000001\n0\n",
+    "n": 1
+   },
+   {
+    "label": "Інтервал [0, 1], eps = 10⁻³, з проміжними ітераціями",
+    "input": "0\n1\n0.001\n1\n",
+    "n": 2
+   },
+   {
+    "label": "Інтервал [1, 2] — кореня немає",
+    "input": "1\n2\n0.0001\n0\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 10,
+   "edges": 16
+  }
+ },
+ "3.2": {
+  "metrics": {
+   "lines": 89,
+   "code": 57,
+   "comments": 18,
+   "defines": 18,
+   "max_len": 15,
+   "avg_len": 3.2,
+   "forbidden": {
+    "let": 2,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "[0, 1], eps = 10⁻⁶, n = 10",
+    "input": "0\n1\n0.000001\n10\n",
+    "n": 1
+   },
+   {
+    "label": "[−2, 3], eps = 10⁻³, n = 20",
+    "input": "-2\n3\n0.001\n20\n",
+    "n": 2
+   }
+  ],
+  "hipo": {
+   "nodes": 15,
+   "edges": 19
+  }
+ },
+ "4.1": {
+  "metrics": {
+   "lines": 82,
+   "code": 46,
+   "comments": 20,
+   "defines": 20,
+   "max_len": 7,
+   "avg_len": 2.3,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "k = 5, додати 3, p = 4",
+    "input": "5\n3\n4\n",
+    "n": 1
+   },
+   {
+    "label": "k = 8, додати 2, p = 10",
+    "input": "8\n2\n10\n",
+    "n": 2
+   },
+   {
+    "label": "Крайній випадок k = 1",
+    "input": "1\n1\n1\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 17,
+   "edges": 23
+  }
+ },
+ "4.2": {
+  "metrics": {
+   "lines": 111,
+   "code": 63,
+   "comments": 28,
+   "defines": 24,
+   "max_len": 5,
+   "avg_len": 2.6,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "7 студентів, m = 10 хв, seed = 42",
+    "input": "7\n10\n42\n",
+    "n": 1
+   },
+   {
+    "label": "4 студенти, m = 20 хв, seed = 7",
+    "input": "4\n20\n7\n",
+    "n": 2
+   }
+  ],
+  "hipo": {
+   "nodes": 22,
+   "edges": 32
+  }
+ },
+ "5.1": {
+  "metrics": {
+   "lines": 134,
+   "code": 93,
+   "comments": 22,
+   "defines": 33,
+   "max_len": 7,
+   "avg_len": 2.8,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Дроби, що утворюють прогресію",
+    "input": "((1 6) (1 3) (1 2) (2 3) (5 6))\n(1 2)\n",
+    "n": 1
+   },
+   {
+    "label": "Довільні дроби",
+    "input": "((3 4) (1 5) (2 7) (5 8) (7 9))\n(2 3)\n",
+    "n": 2
+   },
+   {
+    "label": "Один дріб",
+    "input": "((1 2))\n(1 3)\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 32,
+   "edges": 59
+  }
+ },
+ "5.2": {
+  "metrics": {
+   "lines": 55,
+   "code": 32,
+   "comments": 14,
+   "defines": 12,
+   "max_len": 5,
+   "avg_len": 2.7,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Чотири числа",
+    "input": "((1 2) (3 -1) (0 4) (2 2))\n",
+    "n": 1
+   },
+   {
+    "label": "Спряжені числа",
+    "input": "((1 1) (1 -1))\n",
+    "n": 2
+   },
+   {
+    "label": "i · i = −1",
+    "input": "((0 1) (0 1))\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 12,
+   "edges": 20
+  }
+ },
+ "6.1": {
+  "metrics": {
+   "lines": 68,
+   "code": 41,
+   "comments": 16,
+   "defines": 14,
+   "max_len": 7,
+   "avg_len": 2.9,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "10 і 10 елементів, max = 20, seed = 5",
+    "input": "10\n10\n20\n5\n",
+    "n": 1
+   },
+   {
+    "label": "6 і 6 елементів, max = 100, seed = 3",
+    "input": "6\n6\n100\n3\n",
+    "n": 2
+   },
+   {
+    "label": "Немає спільних елементів",
+    "input": "5\n5\n1000\n11\n",
+    "n": 3
+   }
+  ],
+  "hipo": {
+   "nodes": 11,
+   "edges": 10
+  }
+ },
+ "6.2": {
+  "metrics": {
+   "lines": 113,
+   "code": 77,
+   "comments": 22,
+   "defines": 24,
+   "max_len": 9,
+   "avg_len": 3.2,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Введення b 7 A ? z (пробіл) c я",
+    "input": "b\n7\nA\n?\nz\n \nc\nя\n\n",
+    "n": 1
+   },
+   {
+    "label": "Порожнє введення",
+    "input": "\n",
+    "n": 2
+   }
+  ],
+  "hipo": {
+   "nodes": 24,
+   "edges": 31
+  }
+ },
+ "7.1": {
+  "metrics": {
+   "lines": 129,
+   "code": 84,
+   "comments": 24,
+   "defines": 28,
+   "max_len": 7,
+   "avg_len": 3.0,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "6 рядків, заміна «програмування» → «кодування»",
+    "input": "6\n11\n\"програмування\"\n\"кодування\"\n",
+    "n": 1
+   }
+  ],
+  "hipo": {
+   "nodes": 25,
+   "edges": 28
+  }
+ },
+ "7.2": {
+  "metrics": {
+   "lines": 120,
+   "code": 73,
+   "comments": 29,
+   "defines": 22,
+   "max_len": 11,
+   "avg_len": 3.3,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "Позитивний відгук",
+    "input": "\"review_positive.txt\"\n",
+    "n": 1
+   },
+   {
+    "label": "Негативний відгук",
+    "input": "\"review_negative.txt\"\n",
+    "n": 2
+   },
+   {
+    "label": "Нейтральний текст",
+    "input": "\"review_neutral.txt\"\n",
+    "n": 3
+   },
+   {
+    "label": "Змішаний відгук",
+    "input": "\"review_mixed.txt\"\n",
+    "n": 4
+   }
+  ],
+  "hipo": {
+   "nodes": 22,
+   "edges": 21
+  }
+ },
+ "8.1": {
+  "metrics": {
+   "lines": 274,
+   "code": 187,
+   "comments": 48,
+   "defines": 73,
+   "max_len": 10,
+   "avg_len": 2.6,
+   "forbidden": {
+    "let": 0,
+    "let*": 0,
+    "letrec": 0,
+    "set!": 0,
+    "do": 0,
+    "while/for/loop": 0
+   }
+  },
+  "runs": [
+   {
+    "label": "2x³ − 3x² − 3x + 2",
+    "input": "3\n(2 -3 -3 2)\n",
+    "n": 1
+   },
+   {
+    "label": "x⁴ − 1",
+    "input": "4\n(1 0 0 0 -1)\n",
+    "n": 2
+   },
+   {
+    "label": "(x − 2)³",
+    "input": "3\n(1 -6 12 -8)\n",
+    "n": 3
+   },
+   {
+    "label": "x³ − x (виноситься x)",
+    "input": "3\n(1 0 -1 0)\n",
+    "n": 4
+   },
+   {
+    "label": "x⁴ + 4 (тотожність Софі Жермен)",
+    "input": "4\n(1 0 0 0 4)\n",
+    "n": 5
+   },
+   {
+    "label": "6x² − 6 (числовий множник)",
+    "input": "2\n(6 0 -6)\n",
+    "n": 6
+   },
+   {
+    "label": "−2x⁵ + 8x³ − 8x",
+    "input": "5\n(-2 0 8 0 -8 0)\n",
+    "n": 7
+   },
+   {
+    "label": "4x⁴ − 13x² + 9",
+    "input": "4\n(4 0 -13 0 9)\n",
+    "n": 8
+   }
+  ],
+  "hipo": {
+   "nodes": 52,
+   "edges": 62
+  }
+ }
+}

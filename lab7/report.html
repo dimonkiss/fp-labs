@@ -1,0 +1,286 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР7: Весь звіт — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 7</h2><div class="sub">Обробка рядків та файлів мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><section id='titul'><div class="title"><div>КИЇВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ТАРАСА ШЕВЧЕНКА</div><div>ФАКУЛЬТЕТ ІНФОРМАЦІЙНИХ ТЕХНОЛОГІЙ</div>
+<div>Кафедра програмних систем і технологій</div><div class="big">ЗВІТ</div><div style="font-size:20px">з лабораторної роботи № 7</div>
+<div style="font-size:20px">з дисципліни «Функціональне програмування»</div><h1 style="margin-top:30px">Обробка рядків та файлів мовами функціонального програмування</h1><p>Варіант 3</p>
+<div class="meta"><p><b>Виконав:</b> студент групи ІПЗ-41 Кісіль Д. Р.</p><p><b>Перевірив:</b> ______________________</p></div><p style="margin-top:60px">Київ — 2026</p></div></section><hr><section id='meta'><h1>Мета роботи</h1><div class='card'>Опанувати теоретичні основи обробки рядків та текстових файлів мовами функціонального програмування та розробити програми їх реалізації</div><p class='muted'>Мета подана за методичними вказівками до лабораторних занять з дисципліни «Функціональне програмування» (Київ, 2025).</p></section><hr><section id='umova'><h1>Умова завдання</h1><p><b>Варіант 3.</b> Умова наведена з методичних вказівок.</p><div class='card'><b>Вимоги до коду:</b> Написати процедури, що обробляють рядки, зчитані з текстових файлів; результати обробки записати до текстових файлів. Написати процедури обробки тексту методами NLP.</div><h2>Задача 7.1</h2>
+<p><b>3.1</b> Записати в текстовий файл n рядків тексту, що задаються програмою на функціональній мові програмування. Зчитати рядки із створеного програмою файлу, вивести їх на екран. Замінити в кожному реченні всі входження заданого слова на задане нове слово. Записати в новий текстовий файл результат обробки тексту.</p><h2>Задача 7.2</h2>
+<p><b>3.2*</b> Тональність тексту. Створити текстовий файл з довільною кількістю рядків. Визначити емоційне забарвлення тексту (позитивне / негативне / нейтральне). Реалізувати такі дії:</p>
+<ul><li>зчитати текст в список рядків;</li><li>попередня обробка тексту: токенізація (поділ рядків на слова), нормалізація (переведення слів у нижній регістр, видалення пунктуації);</li>
+<li>видалення стоп-слів за допомогою стандартної функції filter;</li><li>створити словник емоцій (позитивних та негативних слів);</li>
+<li>для кожного слова визначити емоційну вагу: перевірити наявність слова в словнику емоцій; врахувати підсилювачі («дуже», «надзвичайно», «сильно» тощо); врахувати заперечення («не», «ні»); накопичувати вагу (бальна оцінка тональності);</li>
+<li>нормалізувати тональність як частку від ділення загальної тональності на лічильник емоційних слів;</li>
+<li>інтерпретація результату: на основі встановлених порогів (наприклад, бал тональності &gt; 0,2 для «позитивний») віднести текст до категорії: позитивний, негативний або нейтральний;</li>
+<li>вивести кінцевий бал та його емоційну категорію.</li></ul>
+<p><i>Завдання підвищеної складності (*) — оцінюється з додатковим балом 0,5.</i></p></section><hr><section id='analiz'><h1>Аналіз задачі та математичне забезпечення</h1><h2>Задача 7.1: Текстові файли: заміна слова</h2>
+<h3>План програми</h3>
+<ol><li><b>Генерація тексту.</b> Кожен рядок складається з чотирьох частин «підмет — дієслово — додаток — закінчення», кожна обирається зі свого списку за значенням ЛКГ (s′ = (s·1103515245 + 12345) mod 2<sup>31</sup>, індекс = (s′ div 65536) mod довжина). Результат відтворюється за seed.</li>
+<li><b>Запис у файл.</b> <code>call-with-output-file</code> + рекурсивний вивід рядків (<code>write-lines</code>): <code>display</code> у порт, <code>newline</code>.</li>
+<li><b>Читання.</b> <code>call-with-input-file</code>; <code>read-lines</code> читає символи <code>read-char</code> і збирає рядок у зворотний список символів; при <code>#
+ewline</code> рядок завершується; стандартний R5RS не має <code>read-line</code>, тому процедура написана власноруч.</li>
+<li><b>Заміна слова.</b> Скінченний автомат із двома станами «усередині слова» / «поза словом»: літери (<code>char-alphabetic?</code>) накопичуються у слові, на першому нелітерному символі слово порівнюється з цільовим (без урахування регістру); якщо збіглося — у результат записується нове слово, інакше — старе; знаки пунктуації переносяться без змін. Складність O(L) за довжиною тексту.</li>
+<li><b>Запис результату</b> в новий файл і перевірка кількості рядків.</li></ol>
+<h3>Особливості</h3>
+<p>Слово визначається як максимальна послідовність літер, тому «програмування» не замінюється всередині «програмувати» (інша словоформа) і не залежить від регістру («Програмування» → «код»). Це підтверджено тестами (збіг із регулярним виразом Python).</p><h2>Задача 7.2: Тональність тексту</h2>
+<h3>Конвеєр аналізу</h3>
+<ol><li><b>Зчитування:</b> файл → список рядків.</li>
+<li><b>Токенізація й нормалізація:</b> кожний рядок розбивається на слова за нелітерними символами; літери переводяться у нижній регістр (<code>char-downcase</code>), пунктуація відкидається.</li>
+<li><b>Стоп-слова:</b> <code>(filter (lambda (w) (not (member w stop-words))) words)</code>. Слова «не», «ні», «дуже» навмисно <i>не</i> є стоп-словами, бо несуть інформацію про тональність.</li>
+<li><b>Словник емоцій:</b> асоціативний список слово → вага (позитивні: «гарний» +1, «чудовий» +2 …; негативні: «поганий» −1, «жахливий» −2 …); підсилювачі: «дуже» ×1,5, «надзвичайно» ×2, «сильно» ×1,5, «вкрай» ×2; заперечення «не», «ні» змінюють знак.</li>
+<li><b>Оцінка слів:</b> проходом по списку зберігається поточний множник <i>mult</i> (добуток підсилювачів) і знак <i>neg</i> (±1). Для емоційного слова з вагою w додається mult·neg·w, лічильник N збільшується, mult і neg скидаються. Будь-яке інше слово також скидає їх (дія модифікатора — на найближче наступне емоційне слово).</li>
+<li><b>Нормалізація:</b> T = S / N (середня вага емоційного слова; якщо N = 0, T = 0).</li>
+<li><b>Інтерпретація:</b> T &gt; 0,2 — позитивний; T &lt; −0,2 — негативний; інакше нейтральний.</li></ol>
+<div class="formula">T = Σ<sub>i</sub> m<sub>i</sub> · n<sub>i</sub> · w<sub>i</sub> / N</div>
+<p>Приклад: «Це дуже гарний фільм» → стоп-слово «це» видаляється; «дуже» дає mult = 1,5; «гарний» (w = 1) → 1,5; N = 1; T = 1,5 — позитивний. «Це не гарний фільм» → neg = −1 → T = −1 — негативний.</p>
+<img src="../assets/lab7/plot_sentiment.png" alt="тональність чотирьох текстів">
+<h3>Обмеження</h3>
+<p>Метод словниковий: без лематизації (потрібні словоформи зі словника), без розуміння іронії й контексту; слова поза словником не впливають. Ці обмеження типові для простих NLP-систем і задокументовані.</p></section><hr><section id='hipo'><h1>HIPO-діаграма (схема виклику процедур)</h1><p>Діаграма показує ієрархію викликів процедур (стрілка A → B означає, що A викликає B); блоки з рекурсією виділено. Допоміжні процедури введення даних (<code>ask-…</code>) для наочності опущено.</p><h2>Задача 7.1: Текстові файли: заміна слова</h2><img src='../assets/lab7/task1_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>n, seed, слово, нове слово</td><td>виклик run</td></tr><tr><td><code>make-lines / make-line</code></td><td>n, seed</td><td>список згенерованих рядків</td></tr><tr><td><code>save-lines / write-lines</code></td><td>lines, filename</td><td>запис у файл</td></tr><tr><td><code>load-lines / read-lines</code></td><td>filename</td><td>список рядків із файлу</td></tr><tr><td><code>replace-all / replace-word</code></td><td>lines, слово, нове</td><td>рядки з заміною слова</td></tr><tr><td><code>replace-in-chars / flush-word</code></td><td>chars, target, replacement</td><td>заміна у послідовності символів</td></tr></table><h2>Задача 7.2: Тональність тексту</h2><img src='../assets/lab7/task2_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>ім’я файлу</td><td>виклик run</td></tr><tr><td><code>load-lines</code></td><td>filename</td><td>список рядків</td></tr><tr><td><code>tokenize-lines / tokenize</code></td><td>рядки</td><td>список слів у нижньому регістрі</td></tr><tr><td><code>remove-stop-words</code></td><td>words</td><td>слова без стоп-слів (filter)</td></tr><tr><td><code>score-words</code></td><td>words, mult, neg, total, count</td><td>(сума балів, кількість емоційних слів)</td></tr><tr><td><code>normalized-score / classify</code></td><td>результат</td><td>тональність і категорія</td></tr></table></section><hr><section id='kod'><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 7.1: Текстові файли: заміна слова</h2><a class='dl' href='../assets/lab7/task1.scm' download>⬇ task1_text_files.scm</a><pre><code>;; =====================================================================
+;; ЛР7, варіант 3, задача 3.1. Робота з текстовими файлами.
+;;  1) Програма генерує n рядків тексту й записує їх у файл text_input.txt;
+;;  2) рядки зчитуються з файлу та виводяться на екран;
+;;  3) у кожному реченні всі входження заданого слова замінюються на нове слово;
+;;  4) результат записується в новий файл text_output.txt.
+;; Слово — максимальна послідовність літер (знаки пунктуації та пробіли його не входять),
+;; порівняння слів не залежить від регістру. Використано стандартні R5RS-процедури
+;; введення-виведення: call-with-output-file, call-with-input-file, read-char, display.
+;; Мова: R5RS (Dr.Racket / Guile). Без let / set! / циклів.
+;; =====================================================================
+
+;; ---------- Генерація тексту ----------
+(define subjects &#x27;(&quot;Студент&quot; &quot;Програміст&quot; &quot;Викладач&quot; &quot;Дослідник&quot; &quot;Інженер&quot;))
+(define verbs    &#x27;(&quot;вивчає&quot; &quot;описує&quot; &quot;перевіряє&quot; &quot;використовує&quot; &quot;створює&quot;))
+(define objects  &#x27;(&quot;функціональне програмування&quot; &quot;рекурсивні процедури&quot; &quot;списки та вектори&quot;
+                   &quot;символьні обчислення&quot; &quot;чисельні методи&quot;))
+(define endings  &#x27;(&quot;щодня&quot; &quot;з цікавістю&quot; &quot;у лабораторії&quot; &quot;разом із командою&quot; &quot;вдома&quot;))
+
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (pick lst seed) (list-ref lst (remainder (quotient seed 65536) (length lst))))
+
+;; Один рядок: «Підмет дієслово додаток закінчення.»
+;; Кожен компонент вибирається зі свого списку наступним значенням генератора.
+(define (make-line seed)
+  (string-append (pick subjects (next-seed seed)) &quot; &quot;
+                 (pick verbs (next-seed (next-seed seed))) &quot; &quot;
+                 (pick objects (next-seed (next-seed (next-seed seed)))) &quot; &quot;
+                 (pick endings (next-seed (next-seed (next-seed (next-seed seed))))) &quot;.&quot;))
+
+;; Список із n рядків
+(define (make-lines n seed)
+  (if (= n 0)
+      &#x27;()
+      (cons (make-line seed) (make-lines (- n 1) (next-seed (next-seed (next-seed (next-seed (next-seed seed)))))))))
+
+;; ---------- Запис рядків у файл ----------
+(define (write-lines lines port)
+  (if (null? lines)
+      #t
+      (begin (display (car lines) port) (newline port) (write-lines (cdr lines) port))))
+
+(define (save-lines lines filename)
+  (call-with-output-file filename (lambda (port) (write-lines lines port))))
+
+;; ---------- Читання рядків із файлу ----------
+;; Повертає список рядків; рядок накопичується як зворотний список символів
+(define (read-lines port)
+  (read-lines-from port (read-char port) &#x27;() &#x27;()))
+
+(define (read-lines-from port c current acc)
+  (cond ((eof-object? c)
+         (reverse (if (null? current) acc (cons (list-&gt;string (reverse current)) acc))))
+        ((char=? c #\newline)
+         (read-lines-from port (read-char port) &#x27;() (cons (list-&gt;string (reverse current)) acc)))
+        (else (read-lines-from port (read-char port) (cons c current) acc))))
+
+(define (load-lines filename)
+  (call-with-input-file filename read-lines))
+
+;; ---------- Заміна слова ----------
+;; replace-in-chars проходить по символах рядка: літери накопичуються у слові word;
+;; на першому нелітерному символі слово порівнюється із цільовим і дописується в результат.
+(define (same-word? chars target)
+  (string=? (string-downcase (list-&gt;string chars)) (string-downcase target)))
+
+(define (flush-word word target replacement out)
+  ;; word і out — зворотні списки символів; повертає новий out
+  (cond ((null? word) out)
+        ((same-word? (reverse word) target) (append (reverse (string-&gt;list replacement)) out))
+        (else (append word out))))
+
+(define (replace-in-chars chars target replacement word out)
+  (cond ((null? chars) (reverse (flush-word word target replacement out)))
+        ((char-alphabetic? (car chars))
+         (replace-in-chars (cdr chars) target replacement (cons (car chars) word) out))
+        (else
+         (replace-in-chars (cdr chars) target replacement &#x27;()
+                           (cons (car chars) (flush-word word target replacement out))))))
+
+(define (replace-word line target replacement)
+  (list-&gt;string (replace-in-chars (string-&gt;list line) target replacement &#x27;() &#x27;())))
+
+(define (replace-all lines target replacement)
+  (if (null? lines)
+      &#x27;()
+      (cons (replace-word (car lines) target replacement)
+            (replace-all (cdr lines) target replacement))))
+
+;; ---------- Виведення на екран ----------
+(define (print-lines lines i)
+  (if (null? lines)
+      #t
+      (begin (display &quot;  &quot;) (display i) (display &quot;. &quot;) (display (car lines)) (newline)
+             (print-lines (cdr lines) (+ i 1)))))
+
+;; ---------- Інтерфейс ----------
+(define input-file &quot;text_input.txt&quot;)
+(define output-file &quot;text_output.txt&quot;)
+
+(define (main)
+  (display &quot;Кількість рядків n: &quot;) (ask-seed (read)))
+(define (ask-seed n)
+  (display &quot;Початкове число генератора: &quot;) (ask-word n (read)))
+(define (ask-word n seed)
+  (display &quot;Слово, яке потрібно замінити (у лапках): &quot;) (ask-new n seed (read)))
+(define (ask-new n seed old)
+  (display &quot;Нове слово (у лапках): &quot;) (run n seed old (read)))
+
+(define (run n seed old new)
+  (newline)
+  (save-lines (make-lines n seed) input-file)
+  (display &quot;Файл &quot;) (display input-file) (display &quot; записано.&quot;) (newline)
+  (display &quot;Прочитано з файлу:&quot;) (newline)
+  (process (load-lines input-file) old new))
+
+(define (process lines old new)
+  (print-lines lines 1)
+  (newline)
+  (display &quot;Заміна слова «&quot;) (display old) (display &quot;» на «&quot;) (display new) (display &quot;»:&quot;) (newline)
+  (finish (replace-all lines old new)))
+
+(define (finish result)
+  (print-lines result 1)
+  (save-lines result output-file)
+  (newline)
+  (display &quot;Результат записано у файл &quot;) (display output-file) (newline)
+  (display &quot;Перевірка: файл містить &quot;) (display (length (load-lines output-file))) (display &quot; рядків.&quot;) (newline))
+</code></pre><h2>Задача 7.2: Тональність тексту</h2><a class='dl' href='../assets/lab7/task2.scm' download>⬇ task2_sentiment.scm</a><pre><code>;; =====================================================================
+;; ЛР7, варіант 3, задача 3.2*. Тональність (емоційне забарвлення) тексту.
+;; Етапи:
+;;  1) зчитування файлу в список рядків;
+;;  2) токенізація (поділ на слова) і нормалізація (нижній регістр, пунктуація відкидається);
+;;  3) видалення стоп-слів стандартною функцією filter;
+;;  4) словник емоцій (слова з вагами);
+;;  5) оцінка кожного слова з урахуванням підсилювачів («дуже», «надзвичайно», «сильно», «вкрай»)
+;;     та заперечень («не», «ні»), накопичення балів і лічильника емоційних слів;
+;;  6) нормалізація: тональність = сума балів / кількість емоційних слів;
+;;  7) інтерпретація за порогами: &gt; 0.2 — позитивний, &lt; -0.2 — негативний, інакше нейтральний.
+;; Мова: Racket або Guile (потрібна стандартна filter). Без let / set! / циклів.
+;; =====================================================================
+
+;; ---------- 1. Читання файлу ----------
+(define (read-lines port)
+  (read-lines-from port (read-char port) &#x27;() &#x27;()))
+(define (read-lines-from port c current acc)
+  (cond ((eof-object? c)
+         (reverse (if (null? current) acc (cons (list-&gt;string (reverse current)) acc))))
+        ((char=? c #\newline)
+         (read-lines-from port (read-char port) &#x27;() (cons (list-&gt;string (reverse current)) acc)))
+        (else (read-lines-from port (read-char port) (cons c current) acc))))
+(define (load-lines filename)
+  (call-with-input-file filename read-lines))
+
+;; ---------- 2. Токенізація і нормалізація ----------
+;; Рядок → список слів (літери переводяться у нижній регістр, усе інше — роздільник)
+(define (tokenize-chars chars word out)
+  (cond ((null? chars) (reverse (flush word out)))
+        ((char-alphabetic? (car chars))
+         (tokenize-chars (cdr chars) (cons (char-downcase (car chars)) word) out))
+        (else (tokenize-chars (cdr chars) &#x27;() (flush word out)))))
+(define (flush word out)
+  (if (null? word) out (cons (list-&gt;string (reverse word)) out)))
+(define (tokenize line) (tokenize-chars (string-&gt;list line) &#x27;() &#x27;()))
+
+;; Список рядків → єдиний список слів
+(define (tokenize-lines lines)
+  (if (null? lines) &#x27;() (append (tokenize (car lines)) (tokenize-lines (cdr lines)))))
+
+;; ---------- 3. Стоп-слова ----------
+;; Слова «не», «ні», «дуже» тощо навмисно НЕ є стоп-словами — вони потрібні для оцінки.
+(define stop-words
+  &#x27;(&quot;і&quot; &quot;й&quot; &quot;та&quot; &quot;в&quot; &quot;у&quot; &quot;на&quot; &quot;з&quot; &quot;із&quot; &quot;до&quot; &quot;що&quot; &quot;це&quot; &quot;як&quot; &quot;але&quot; &quot;проте&quot; &quot;я&quot; &quot;ми&quot; &quot;ви&quot;
+    &quot;він&quot; &quot;вона&quot; &quot;воно&quot; &quot;вони&quot; &quot;то&quot; &quot;же&quot; &quot;ж&quot; &quot;а&quot; &quot;б&quot; &quot;би&quot; &quot;ось&quot; &quot;такі&quot; &quot;такий&quot; &quot;просто&quot;))
+
+(define (remove-stop-words words)
+  (filter (lambda (w) (not (member w stop-words))) words))
+
+;; ---------- 4. Словники ----------
+(define emotion-dictionary
+  &#x27;((&quot;гарний&quot; . 1) (&quot;чудовий&quot; . 2) (&quot;чудова&quot; . 2) (&quot;цікавий&quot; . 1) (&quot;приємна&quot; . 1) (&quot;люблю&quot; . 1)
+    (&quot;радий&quot; . 1) (&quot;прекрасний&quot; . 2) (&quot;добрий&quot; . 1) (&quot;чудові&quot; . 2) (&quot;цікава&quot; . 1)
+    (&quot;поганий&quot; . -1) (&quot;жахливий&quot; . -2) (&quot;жахлива&quot; . -2) (&quot;нудний&quot; . -1) (&quot;слабкі&quot; . -1)
+    (&quot;розчарований&quot; . -2) (&quot;погана&quot; . -1) (&quot;нудна&quot; . -1) (&quot;жахливі&quot; . -2)))
+
+(define amplifiers &#x27;((&quot;дуже&quot; . 1.5) (&quot;надзвичайно&quot; . 2) (&quot;сильно&quot; . 1.5) (&quot;вкрай&quot; . 2)))
+(define negations &#x27;(&quot;не&quot; &quot;ні&quot;))
+
+;; Пошук у асоціативному списку: значення або #f
+(define (lookup word table)
+  (cond ((null? table) #f)
+        ((string=? word (car (car table))) (cdr (car table)))
+        (else (lookup word (cdr table)))))
+
+;; ---------- 5. Оцінка слів ----------
+;; Стан: mult — множник від підсилювачів, neg — -1 після заперечення (інакше 1),
+;;       total — сума балів, count — кількість емоційних слів.
+;; Підсилювач/заперечення діють на найближче наступне емоційне слово; будь-яке інше слово
+;; скидає їх. Результат: список (total count).
+(define (score-words words mult neg total count)
+  (cond ((null? words) (list total count))
+        ((lookup (car words) amplifiers)
+         (score-words (cdr words) (* mult (lookup (car words) amplifiers)) neg total count))
+        ((member (car words) negations)
+         (score-words (cdr words) mult (* neg -1) total count))
+        ((lookup (car words) emotion-dictionary)
+         (score-words (cdr words) 1 1
+                      (+ total (* mult neg (lookup (car words) emotion-dictionary)))
+                      (+ count 1)))
+        (else (score-words (cdr words) 1 1 total count))))
+
+;; ---------- 6. Нормалізація ----------
+(define (normalized-score r)
+  (if (= (cadr r) 0) 0 (/ (car r) (cadr r))))
+
+;; ---------- 7. Інтерпретація ----------
+(define (classify score)
+  (cond ((&gt; score 0.2) &quot;позитивний&quot;)
+        ((&lt; score -0.2) &quot;негативний&quot;)
+        (else &quot;нейтральний&quot;)))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Ім&#x27;я текстового файлу (у лапках): &quot;)
+  (run (read)))
+
+(define (run filename)
+  (newline)
+  (analyse (load-lines filename)))
+
+(define (analyse lines)
+  (display &quot;Прочитано рядків: &quot;) (display (length lines)) (newline)
+  (analyse2 (remove-stop-words (tokenize-lines lines))))
+
+(define (analyse2 words)
+  (display &quot;Слів після видалення стоп-слів: &quot;) (display (length words)) (newline)
+  (display &quot;Слова: &quot;) (display words) (newline)
+  (analyse3 (score-words words 1 1 0 0)))
+
+(define (analyse3 r)
+  (display &quot;Сума балів: &quot;) (display (car r)) (newline)
+  (display &quot;Емоційних слів: &quot;) (display (cadr r)) (newline)
+  (analyse4 (normalized-score r)))
+
+(define (analyse4 score)
+  (display &quot;Нормалізована тональність: &quot;) (display score) (newline)
+  (display &quot;Категорія: &quot;) (display (classify score)) (newline))
+</code></pre></section><hr><section id='skrin'><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 7.1: Текстові файли: заміна слова</h2><div class='runlabel'>Запуск 1: 6 рядків, заміна «програмування» → «кодування»</div><img src='../assets/lab7/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab7/task1_run1.txt'>текстовий протокол</a></div><h2>Задача 7.2: Тональність тексту</h2><div class='runlabel'>Запуск 1: Позитивний відгук</div><img src='../assets/lab7/task2_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab7/task2_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: Негативний відгук</div><img src='../assets/lab7/task2_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab7/task2_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: Нейтральний текст</div><img src='../assets/lab7/task2_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab7/task2_run3.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 4: Змішаний відгук</div><img src='../assets/lab7/task2_run4.png' alt='запуск 4'><div><a class='dl' href='../assets/lab7/task2_run4.txt'>текстовий протокол</a></div></section><hr><section id='perevirka'><h1>Оцінка достовірності результату</h1><div class='card'><b>Метод.</b> Результати програм на Scheme порівнювалися з <i>незалежними</i> еталонними обчисленнями на Python (бібліотеки math, fractions, sympy та власні реалізації формул). Для кожної перевірки автоматично запускалась Scheme-програма на наборі вхідних даних і порівнювався її вивід. <b>Підсумок: 16 з 16 перевірок пройдено.</b> Крім того, пройдено контрольні тести з умови завдання.</div><h2>Заміна слова: збіг із регулярним виразом Python</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>«Студент вивчає функціональне програмування щодня.»  [програмування → кодування]</td><td>Студент вивчає функціональне кодування щодня.</td><td>Студент вивчає функціональне кодування щодня.</td><td><span class='ok'>✓</span></td></tr><tr><td>«Програмування — це мистецтво. Програмування вимагає уваги, а програмувати легко!»  [програмування → код]</td><td>код — це мистецтво. код вимагає уваги, а програмувати легко!</td><td>код — це мистецтво. код вимагає уваги, а програмувати легко!</td><td><span class='ok'>✓</span></td></tr><tr><td>«кіт і Кіт та котик, кіт!»  [кіт → пес]</td><td>пес і пес та котик, пес!</td><td>пес і пес та котик, пес!</td><td><span class='ok'>✓</span></td></tr><tr><td>«Слово без збігу.»  [відсутнє → нове]</td><td>Слово без збігу.</td><td>Слово без збігу.</td><td><span class='ok'>✓</span></td></tr><tr><td>«a-b a_b ab, a»  [a → XY]</td><td>XY-b XY_b ab, XY</td><td>XY-b XY_b ab, XY</td><td><span class='ok'>✓</span></td></tr></table><p><b>5 / 5</b> збігів.</p><h2>Генератор тексту: збіг із Python-реалізацією того ж LCG</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>n=4, seed=11</td><td>(Програміст створює рекурсивні процедури разом із командою. Викладач п…</td><td>(Програміст створює рекурсивні процедури разом із командою. Викладач п…</td><td><span class='ok'>✓</span></td></tr><tr><td>n=3, seed=2026</td><td>(Студент використовує списки та вектори у лабораторії. Студент створює…</td><td>(Студент використовує списки та вектори у лабораторії. Студент створює…</td><td><span class='ok'>✓</span></td></tr></table><p><b>2 / 2</b> збігів.</p><h2>Токенізація та нормалізація</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>Це дуже ГАРНИЙ фільм, я не люблю нудне!</td><td>(це дуже гарний фільм я не люблю нудне)</td><td>(це дуже гарний фільм я не люблю нудне)</td><td><span class='ok'>✓</span></td></tr><tr><td>Слово-слово; ще (слово)...</td><td>(слово слово ще слово)</td><td>(слово слово ще слово)</td><td><span class='ok'>✓</span></td></tr></table><p><b>2 / 2</b> збігів.</p><h2>Тональність: підсиленн, заперечення, пороги — проти незалежної реалізації</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>Це дуже гарний фільм</td><td>1.5 / 1 / позитивний</td><td>1.5 / 1 / позитивний</td><td><span class='ok'>✓</span></td></tr><tr><td>Це не гарний фільм</td><td>-1 / 1 / негативний</td><td>-1 / 1 / негативний</td><td><span class='ok'>✓</span></td></tr><tr><td>Це не дуже гарний фільм</td><td>-1.5 / 1 / негативний</td><td>-1.5 / 1 / негативний</td><td><span class='ok'>✓</span></td></tr><tr><td>Сюжет жахливий і надзвичайно нудний</td><td>-4 / 2 / негативний</td><td>-4 / 2 / негативний</td><td><span class='ok'>✓</span></td></tr><tr><td>Фільм триває дві години</td><td>0 / 0 / нейтральний</td><td>0 / 0 / нейтральний</td><td><span class='ok'>✓</span></td></tr><tr><td>чудовий та поганий</td><td>1 / 2 / позитивний</td><td>1 / 2 / позитивний</td><td><span class='ok'>✓</span></td></tr><tr><td>не не гарний</td><td>1 / 1 / позитивний</td><td>1 / 1 / позитивний</td><td><span class='ok'>✓</span></td></tr></table><p><b>7 / 7</b> збігів.</p></section><hr><section id='ai'><h1>Перевірка коду інструментами штучного інтелекту (простота, Clean code)</h1><p>Аналіз коду виконав ШІ-асистент Claude (Anthropic): прочитано кожну програму, перевірено її за критеріями чистого коду й за вимогами завдання, автоматично пораховано метрики та пошук заборонених конструкцій. Нижче — критерії, вимірювання й висновки; випадки, де за результатами перевірки код було змінено, позначені «знайдено й виправлено».</p><h2>Критерії</h2><table class='t'><tr><th>Критерій</th><th>Що перевірялось</th></tr><tr><td>Іменування</td><td>імена відображають зміст (дієслова для дій, іменники для даних)</td></tr><tr><td>Малі функції</td><td>одна процедура — одна відповідальність; довжина процедур</td></tr><tr><td>Відсутність побічних ефектів</td><td>немає set!, змінних стану; значення передаються параметрами</td></tr><tr><td>Відповідність обмеженням</td><td>заборонені конструкції (let, let*, letrec, do, while, for, loop)</td></tr><tr><td>Простота</td><td>немає дублювання обчислень, зайвих абстракцій; коментарі пояснюють «чому», а не «що»</td></tr><tr><td>Коректність і тестованість</td><td>чисті процедури можна перевірити окремо (див. розділ «Оцінка достовірності»)</td></tr></table><div class='card'>Окремих заборон на let у цій лабораторній немає; для єдності стилю програми написано без let/set!/циклів, а таблиці наведено для інформації.</div><h2>Задача 7.1: Текстові файли: заміна слова</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>129</td><td>84</td><td>24</td><td>28</td><td>3.0</td><td>7</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Процедури невеликі й називаються за змістом (<code>make-line</code>, <code>save-lines</code>, <code>load-lines</code>, <code>replace-word</code>); ввід-вивід відокремлений від обробки рядків; імена файлів — константи <code>input-file</code>, <code>output-file</code>.</li><li>Заміна слова — окремий чистий алгоритм без побічних ефектів; він покритий порівнянням із регулярним виразом Python.</li><li><b>Зауваження:</b> <code>read-lines</code> дублюється у двох файлах лабораторної (<code>task1</code> і <code>task2</code>); у реальному проєкті слід винести у спільний модуль.</li><li><b>Зауваження:</b> шлях до файлів відносний (поточна директорія); у Dr.Racket це папка з програмою — задокументовано.</li></ul><h2>Задача 7.2: Тональність тексту</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>120</td><td>73</td><td>29</td><td>22</td><td>3.3</td><td>11</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Етапи конвеєра виражені окремими процедурами, що комбінуються композицією — чітко видно поетапну обробку тексту.</li><li>Стоп-слова й словники винесені в іменовані константи (дані відокремлені від логіки); додавання слів не змінює код алгоритму.</li><li>Використано стандартну <code>filter</code> (SRFI-1/Racket) — як вимагає умова; решта процедур — R5RS.</li><li><b>Зауваження:</b> немає лематизації, тому словник містить конкретні словоформи; для реального застосування потрібен стемер або морфологічний словник української мови.</li></ul><p class='muted'>Примітка: метрики розраховано автоматично; змістовні висновки — експертна оцінка асистента. Перевірку слід розглядати як допоміжну: остаточну відповідальність за код несе автор.</p></section><hr><section id='vysnovok'><h1>Висновок</h1><div class='card'><p>Розроблено програми обробки текстових файлів: генерація тексту, запис у файл, читання, заміна слів і запис результату, а також (підвищеної складності) аналіз тональності тексту з токенізацією, нормалізацією, фільтрацією стоп-слів стандартною <code>filter</code>, словником емоцій, підсилювачами та запереченнями, нормалізованим балом і порогами інтерпретації. Тести (позитивний, негативний, нейтральний, змішаний тексти) дали очікувані категорії; незалежні перевірки проти Python (регулярні вирази, власна реалізація алгоритму) — 16 порівнянь, усі пройдено.</p></div></section><hr></main></div></body></html>

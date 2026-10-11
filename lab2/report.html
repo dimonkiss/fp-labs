@@ -1,0 +1,208 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР2: Весь звіт — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 2</h2><div class="sub">Рекурентні співвідношення для тригонометричних, експоненціальних функцій та ланцюгові дроби<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><section id='titul'><div class="title"><div>КИЇВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ТАРАСА ШЕВЧЕНКА</div><div>ФАКУЛЬТЕТ ІНФОРМАЦІЙНИХ ТЕХНОЛОГІЙ</div>
+<div>Кафедра програмних систем і технологій</div><div class="big">ЗВІТ</div><div style="font-size:20px">з лабораторної роботи № 2</div>
+<div style="font-size:20px">з дисципліни «Функціональне програмування»</div><h1 style="margin-top:30px">Рекурентні співвідношення для тригонометричних, експоненціальних функцій та ланцюгові дроби</h1><p>Варіант 3</p>
+<div class="meta"><p><b>Виконав:</b> студент групи ІПЗ-41 Кісіль Д. Р.</p><p><b>Перевірив:</b> ______________________</p></div><p style="margin-top:60px">Київ — 2026</p></div></section><hr><section id='meta'><h1>Мета роботи</h1><div class='card'>Опанувати теоретичні основи застосування рекурентних співвідношень для обчислення тригонометричних, експоненціальних, степеневих функцій та розробити програми функціональними мовам програмування для обчислення їх значень</div><p class='muted'>Мета подана за методичними вказівками до лабораторних занять з дисципліни «Функціональне програмування» (Київ, 2025).</p></section><hr><section id='umova'><h1>Умова завдання</h1><p><b>Варіант 3.</b> Умова наведена з методичних вказівок.</p><div class='card'><b>Вимоги до коду:</b> Не використовувати let, let*, letrec, named let, set! та циклічні конструкції (do, while, for, loop тощо). Локальні значення передавати через параметри або обчислювати у виразах. Повторювані обчислення — рекурсивно; допоміжні рекурсивні функції рекомендовано оформлювати внутрішнім define.</div><h2>Задача 2.1</h2>
+<p><b>3.1</b> Обчислити значення функції Y, розвинувши функцію e<sup>−x</sup> у ряд Тейлора. Аргумент x змінюється від заданих з клавіатури початкового до кінцевого значень з деяким кроком.</p>
+<div class="formula">
+y =
+<span class="brace">{</span>
+<table class="cases"><tr><td>e<sup>−x</sup> + e<sup>−2x</sup>,</td><td>0 ≤ x ≤ 2,</td></tr>
+<tr><td>1 / e<sup>−(x+5)</sup>,</td><td>x &gt; 2.</td></tr></table>
+</div>
+<p><b>Завдання:</b></p>
+<ul>
+<li>вибравши тип рекурсії (звичайну або хвостову), написати рекурсивну процедуру мовою Scheme для обчислення функції e<sup>−x</sup> за рядом Тейлора з використанням рекурентного співвідношення та точності, що задається з клавіатури в діапазоні від 10<sup>−2</sup> до 10<sup>−6</sup>;</li>
+<li>реалізувати процедуру розгалуження для функції Y відповідно до умови задачі;</li>
+<li>розробити рекурсивну процедуру для табуляції функції Y на інтервалі, що задається з клавіатури (початкове, кінцеве значення та крок). У випадку попадання в область, для якої значення функції Y не задано умовою задачі, виводити повідомлення «Функція не визначена»;</li>
+<li>обчислити похибку розрахунків як модуль різниці між значенням наближеного обчислення функції Y та значенням стандартної (бібліотечної) функції exp;</li>
+<li>результати подати у вигляді таблиці з колонками: «аргумент», «розклад Тейлора», «стандартне значення», «похибка».</li>
+</ul><h2>Задача 2.2</h2>
+<p><b>3.2</b> Обчислити нескінченний ланцюговий дріб, задавши значення точності з клавіатури. Ланцюговий дріб збігається до значення π.</p>
+<div class="formula">π = 3 + <span class="cf">1²&nbsp;/&nbsp;(6 + 3²&nbsp;/&nbsp;(6 + 5²&nbsp;/&nbsp;(6 + 7²&nbsp;/&nbsp;(6 + 9²&nbsp;/&nbsp;(6 + …)))))</span></div></section><hr><section id='analiz'><h1>Аналіз задачі та математичне забезпечення</h1><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2>
+<h3>Ряд Тейлора та рекурентне співвідношення</h3>
+<p>e<sup>z</sup> = Σ<sub>k≥0</sub> z<sup>k</sup>/k! = 1 + z + z²/2! + z³/3! + … Загальний член a<sub>k</sub> = z<sup>k</sup>/k! обчислювати «в лоб» (степінь і факторіал) нераціонально. Із співвідношення a<sub>k+1</sub>/a<sub>k</sub> = z/(k + 1) отримуємо <b>рекурентну формулу</b>:</p>
+<div class="formula">a<sub>0</sub> = 1,&nbsp;&nbsp; a<sub>k+1</sub> = a<sub>k</sub> · z / (k + 1),&nbsp;&nbsp; S<sub>K</sub> = Σ<sub>k=0..K</sub> a<sub>k</sub></div>
+<p>Кожен наступний член одержують з попереднього за одне множення й ділення. Підсумовування закінчується, коли |a<sub>k</sub>| &lt; ε (точність ε ∈ [10<sup>−6</sup>; 10<sup>−2</sup>] вводиться з клавіатури).</p>
+<h3>Вибір типу рекурсії</h3>
+<p>Обрано <b>хвостову рекурсію</b>: <code>(exp-sum z eps term k sum)</code> — акумулятори: поточний член <code>term</code>, його номер <code>k</code> і часткова сума <code>sum</code>. Результат повертається без «відкладених» операцій, тому процес ітеративний і виконується за O(K) часу та O(1) стеку.</p>
+<h3>Функція Y(x) та її область визначення</h3>
+<p>Y(x) = e<sup>−x</sup> + e<sup>−2x</sup> для x ∈ [0; 2], Y(x) = 1/e<sup>−(x+5)</sup> для x &gt; 2; для x &lt; 0 значення не задано — виводиться «Функція не визначена». Зауваження: 1/e<sup>−(x+5)</sup> = e<sup>x+5</sup>, тобто Y швидко зростає (Y(4) ≈ 8103). Табуляція виконується рекурсивно за індексом <i>i</i>: x<sub>i</sub> = x<sub>0</sub> + i·h (так уникаємо накопичення похибки при багаторазовому додаванні кроку).</p>
+<h3>Дві реалізації e<sup>−x</sup> і втрата точності</h3>
+<ul>
+<li><b>Спосіб 1 (прямий):</b> ряд для z = −x має <i>знакозмінні</i> члени. При x &gt; 2 частинні суми досягають великих значень (наприклад, для z = −9 найбільший член ≈ 9<sup>8</sup>/8! ≈ 1067), а результат e<sup>−9</sup> ≈ 1,2·10<sup>−4</sup>. Відбувається <b>катастрофічне скорочення</b>: значущі цифри втрачаються, а умова |a<sub>k</sub>| &lt; ε гарантує лише <i>абсолютну</i> похибку ≈ ε для e<sup>−(x+5)</sup>. Але Y = 1/e<sup>−(x+5)</sup> — це обернена величина, тому похибка підсилюється у Y² разів: при x = 4 прямий спосіб дає похибку ≈ 49 замість очікуваних 10<sup>−6</sup>.</li>
+<li><b>Спосіб 2 (стійкий):</b> e<sup>−x</sup> = 1/e<sup>x</sup>, а e<sup>x</sup> розвивається в ряд із членами одного знака — скорочення немає, абсолютна похибка e<sup>x+5</sup> не перевищує ε. Результат: похибка Y ≤ 2ε на всьому інтервалі.</li>
+</ul>
+<img src="../assets/lab2/plot_errors.png" alt="похибки двох способів">
+<p>У програмі спосіб вибирається введенням (1 — прямий, 2 — стійкий), щоб порівняти результати; для виконання вимог завдання основним вважається стійкий.</p><h2>Задача 2.2: Ланцюговий дріб для π</h2>
+<h3>Скінченний обрив нескінченного дробу</h3>
+<p>Загальний вигляд дробу: π = 3 + a<sub>1</sub>/(6 + a<sub>2</sub>/(6 + a<sub>3</sub>/(6 + …))), де a<sub>k</sub> = (2k − 1)² — квадрати непарних чисел. Нескінченний дріб замінюємо дробом із n ланками (обриваємо на n-й ланці значенням 6) і зростаючим n наближаємось до π.</p>
+<h3>Обчислення «знизу вгору»</h3>
+<p>Дріб обчислюється від останньої ланки до першої хвостовою рекурсією з акумулятором <code>acc</code>: d<sub>n</sub> = 6, d<sub>k−1</sub> = 6 + a<sub>k</sub>/d<sub>k</sub>, π ≈ 3 + 1/d<sub>1</sub>. Така схема — O(n) операцій і O(1) стеку, на відміну від обчислення «зверху вниз» із відкладеними операціями.</p>
+<h3>Задана точність</h3>
+<p>Критерій зупинки: кількість ланок n подвоюється, доки |π<sub>2n</sub> − π<sub>n</sub>| ≥ ε. Збіжність дуже швидка (швидше, ніж 1/n²; експериментально похибка спадає приблизно як n<sup>−3</sup>), тому для ε = 10<sup>−6</sup> достатньо 128 ланок.</p>
+<img src="../assets/lab2/plot_errors.png" alt="збіжність ланцюгового дробу">
+<table class="t"><tr><th>ε</th><th>π<sub>набл</sub></th><th>Ланок n</th><th>|π<sub>набл</sub> − π|</th></tr>
+<tr><td>10<sup>−2</sup></td><td>3,1396825</td><td>4</td><td>1,9·10<sup>−3</sup></td></tr>
+<tr><td>10<sup>−4</sup></td><td>3,1415857</td><td>32</td><td>6,9·10<sup>−6</sup></td></tr>
+<tr><td>10<sup>−6</sup></td><td>3,1415925</td><td>128</td><td>1,2·10<sup>−7</sup></td></tr></table></section><hr><section id='hipo'><h1>HIPO-діаграма (схема виклику процедур)</h1><p>Діаграма показує ієрархію викликів процедур (стрілка A → B означає, що A викликає B); блоки з рекурсією виділено. Допоміжні процедури введення даних (<code>ask-…</code>) для наочності опущено.</p><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2><img src='../assets/lab2/task1_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>x₀, x₁, крок, eps, спосіб</td><td>виклик run</td></tr><tr><td><code>tabulate</code></td><td>x₀, x₁, step, eps, mode, i</td><td>рекурсивний вивід рядків таблиці</td></tr><tr><td><code>print-row / print-row-value</code></td><td>x, eps, mode</td><td>рядок таблиці або «Функція не визначена»</td></tr><tr><td><code>y-taylor / y-standard</code></td><td>x, eps, mode</td><td>Y(x) за рядом / за exp</td></tr><tr><td><code>exp-neg-alt / exp-neg-stable</code></td><td>x, eps</td><td>e<sup>−x</sup> двома способами</td></tr><tr><td><code>exp-taylor / exp-sum</code></td><td>z, eps</td><td>e<sup>z</sup> за рядом Тейлора (хвостова рекурсія)</td></tr></table><h2>Задача 2.2: Ланцюговий дріб для π</h2><img src='../assets/lab2/task2_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>—</td><td>запит eps</td></tr><tr><td><code>compute-pi / refine</code></td><td>eps</td><td>(π, n) із подвоєнням n</td></tr><tr><td><code>cf-pi</code></td><td>n</td><td>наближення π за n ланками</td></tr><tr><td><code>cf-down</code></td><td>k, acc</td><td>обчислення d₁ знизу вгору</td></tr><tr><td><code>odd-square</code></td><td>k</td><td>(2k − 1)²</td></tr><tr><td><code>print-result</code></td><td>результат, eps</td><td>виведення π, n, похибки</td></tr></table></section><hr><section id='kod'><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2><a class='dl' href='../assets/lab2/task1.scm' download>⬇ task1_taylor_y.scm</a><pre><code>;; =====================================================================
+;; ЛР2, варіант 3, задача 3.1. Табуляція функції
+;;            | e^(-x) + e^(-2x),     0 &lt;= x &lt;= 2
+;;     Y(x) = |
+;;            | 1 / e^(-(x+5)),       x &gt; 2
+;; де експонента e^z обчислюється розвиненням у ряд Тейлора:
+;;     e^z = 1 + z + z^2/2! + ... + z^k/k! + ...
+;; Рекурентне співвідношення для членів ряду:  a_0 = 1,  a_(k+1) = a_k * z / (k + 1)
+;; (степінь і факторіал не обчислюються заново — кожен член утворюється з попереднього).
+;; Точність eps вводиться з клавіатури (10^-2 ... 10^-6): сума обривається, коли |a_k| &lt; eps.
+;; Тип рекурсії — ХВОСТОВА (акумулятори: поточний член, номер, сума).
+;; Обмеження: без let / let* / set! / циклів.
+;; =====================================================================
+
+;; ---------- e^z за рядом Тейлора (хвостова рекурсія) ----------
+(define (exp-taylor z eps)
+  (exp-sum z eps 1.0 0 0.0))
+
+;; term — поточний член a_k, k — його номер, sum — сума попередніх членів
+(define (exp-sum z eps term k sum)
+  (if (&lt; (abs term) eps)
+      sum
+      (exp-sum z eps (/ (* term z) (+ k 1)) (+ k 1) (+ sum term))))
+
+;; e^(-x), спосіб 1 (прямий): ряд зі знакозмінними членами, z = -x.
+;; При x &gt; 2 члени ряду досягають великих значень з різними знаками, і сума втрачає
+;; значущі цифри (катастрофічне скорочення) — див. аналіз у звіті.
+(define (exp-neg-alt x eps)
+  (exp-taylor (- x) eps))
+
+;; e^(-x), спосіб 2 (стійкий): e^(-x) = 1 / e^x, де e^x обчислюється рядом із членами
+;; одного знака (при x &gt;= 0) — скорочення немає, відносна похибка мала для всіх x.
+(define (exp-neg-stable x eps)
+  (/ 1 (exp-taylor x eps)))
+
+;; Вибір способу: mode = 1 — прямий, mode = 2 — стійкий
+(define (exp-neg x eps mode)
+  (if (= mode 1) (exp-neg-alt x eps) (exp-neg-stable x eps)))
+
+;; ---------- Розгалуження: функція Y ----------
+;; Повертає число або символ &#x27;undefined, якщо x поза областю визначення
+(define (y-taylor x eps mode)
+  (cond ((and (&gt;= x 0) (&lt;= x 2))
+         (+ (exp-neg x eps mode) (exp-neg (* 2 x) eps mode)))
+        ((&gt; x 2)
+         (/ 1 (exp-neg (+ x 5) eps mode)))
+        (else &#x27;undefined)))
+
+;; Еталон — стандартна функція exp
+(define (y-standard x)
+  (cond ((and (&gt;= x 0) (&lt;= x 2)) (+ (exp (- x)) (exp (* -2 x))))
+        ((&gt; x 2) (/ 1 (exp (- (+ x 5)))))
+        (else &#x27;undefined)))
+
+;; ---------- Округлення для виведення ----------
+(define (round-to v digits)
+  (/ (round (* v (expt 10 digits))) (expt 10 digits)))
+
+;; ---------- Виведення одного рядка таблиці ----------
+(define (print-row x eps mode)
+  (print-row-value x (y-taylor x eps mode) (y-standard x)))
+
+;; yt — значення за рядом Тейлора, ys — стандартне значення (обчислені один раз)
+(define (print-row-value x yt ys)
+  (if (eq? yt &#x27;undefined)
+      (begin (display (round-to x 6)) (display &quot;\t&quot;)
+             (display &quot;Функція не визначена&quot;) (newline))
+      (begin (display (round-to x 6)) (display &quot;\t&quot;)
+             (display (round-to yt 8)) (display &quot;\t&quot;)
+             (display (round-to ys 8)) (display &quot;\t&quot;)
+             (display (abs (- yt ys))) (newline))))
+
+;; ---------- Рекурсивна табуляція ----------
+;; i — номер кроку; x = x0 + i*step (так уникаємо накопичення похибки додавання)
+(define (tabulate x0 x1 step eps mode i)
+  (if (&lt;= (+ x0 (* i step)) (+ x1 (/ step 1000)))
+      (begin (print-row (+ x0 (* i step)) eps mode)
+             (tabulate x0 x1 step eps mode (+ i 1)))))
+
+(define (print-header)
+  (display &quot;аргумент\tрозклад Тейлора\tстандартне\tпохибка&quot;) (newline))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Початкове значення x0: &quot;) (ask-x1 (read)))
+(define (ask-x1 x0)
+  (display &quot;Кінцеве значення x1: &quot;) (ask-step x0 (read)))
+(define (ask-step x0 x1)
+  (display &quot;Крок: &quot;) (ask-eps x0 x1 (read)))
+(define (ask-eps x0 x1 step)
+  (display &quot;Точність eps (від 0.01 до 0.000001): &quot;) (ask-mode x0 x1 step (read)))
+(define (ask-mode x0 x1 step eps)
+  (display &quot;Спосіб e^(-x): 1 — прямий ряд, 2 — через 1/e^x: &quot;) (run x0 x1 step eps (read)))
+(define (run x0 x1 step eps mode)
+  (newline)
+  (print-header)
+  (tabulate x0 x1 step eps mode 0))
+</code></pre><h2>Задача 2.2: Ланцюговий дріб для π</h2><a class='dl' href='../assets/lab2/task2.scm' download>⬇ task2_continued_fraction.scm</a><pre><code>;; =====================================================================
+;; ЛР2, варіант 3, задача 3.2. Нескінченний ланцюговий дріб, що збігається до pi:
+;;
+;;                       1^2
+;;     pi = 3 + ---------------------
+;;                          3^2
+;;               6 + ---------------
+;;                            5^2
+;;                     6 + ---------
+;;                           7^2
+;;                          6 + ----
+;;                              6 + ...
+;;
+;; Загальний вигляд: pi = 3 + a_1/(6 + a_2/(6 + a_3/(6 + ...))),  a_k = (2k - 1)^2.
+;; Нескінченний дріб замінюємо скінченним із n ланок. Обчислення ведемо «знизу вгору»
+;; (від ланки n до першої) хвостовою рекурсією з акумулятором d:
+;;     d_n = 6,   d_(k-1) = 6 + a_k / d_k,   pi ~ 3 + 1 / d_1.
+;; Точність eps вводиться з клавіатури: кількість ланок n подвоюється, доки
+;; значення двох послідовних наближень не відрізнятимуться менше ніж на eps.
+;; =====================================================================
+
+;; Квадрат непарного числа a_k = (2k-1)^2
+(define (odd-square k)
+  (* (- (* 2 k) 1) (- (* 2 k) 1)))
+
+;; Обчислення d_1, рухаючись від k = n до k = 1 (акумулятор acc = d_k)
+(define (cf-down k acc)
+  (if (= k 1)
+      acc
+      (cf-down (- k 1) (+ 6.0 (/ (odd-square k) acc)))))
+
+;; Наближене значення pi за n ланками
+(define (cf-pi n)
+  (+ 3.0 (/ 1.0 (cf-down n 6.0))))
+
+;; Подвоєння кількості ланок, доки |pi_2n - pi_n| &gt;= eps
+;; Повертає список (значення  кількість-ланок)
+(define (refine n prev eps)
+  (if (&lt; (abs (- (cf-pi n) prev)) eps)
+      (list (cf-pi n) n)
+      (refine (* 2 n) (cf-pi n) eps)))
+
+(define (compute-pi eps)
+  (refine 2 (cf-pi 1) eps))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Введіть точність eps (наприклад, 0.0001): &quot;)
+  (run (read)))
+
+(define (run eps)
+  (newline)
+  (print-result (compute-pi eps) eps))
+
+(define (print-result r eps)
+  (display &quot;Наближене значення pi  = &quot;) (display (car r)) (newline)
+  (display &quot;Кількість ланок дробу  = &quot;) (display (cadr r)) (newline)
+  (display &quot;Еталон 4*atan(1)       = &quot;) (display (* 4 (atan 1))) (newline)
+  (display &quot;Фактична похибка       = &quot;) (display (abs (- (car r) (* 4 (atan 1))))) (newline)
+  (display &quot;Задана точність        = &quot;) (display eps) (newline))
+</code></pre></section><hr><section id='skrin'><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2><div class='runlabel'>Запуск 1: Стійкий спосіб, eps = 10⁻⁶, x від −1 до 4 з кроком 0,5</div><img src='../assets/lab2/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab2/task1_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: Прямий знакозмінний ряд (втрата точності при x &gt; 2)</div><img src='../assets/lab2/task1_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab2/task1_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: Точність eps = 0,01</div><img src='../assets/lab2/task1_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab2/task1_run3.txt'>текстовий протокол</a></div><h2>Задача 2.2: Ланцюговий дріб для π</h2><div class='runlabel'>Запуск 1: eps = 0,01</div><img src='../assets/lab2/task2_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab2/task2_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: eps = 10⁻⁴</div><img src='../assets/lab2/task2_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab2/task2_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: eps = 10⁻⁶</div><img src='../assets/lab2/task2_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab2/task2_run3.txt'>текстовий протокол</a></div></section><hr><section id='perevirka'><h1>Оцінка достовірності результату</h1><div class='card'><b>Метод.</b> Результати програм на Scheme порівнювалися з <i>незалежними</i> еталонними обчисленнями на Python (бібліотеки math, fractions, sympy та власні реалізації формул). Для кожної перевірки автоматично запускалась Scheme-програма на наборі вхідних даних і порівнювався її вивід. <b>Підсумок: 44 з 44 перевірок пройдено.</b> Крім того, пройдено контрольні тести з умови завдання.</div><h2>Y(x) за рядом Тейлора (стійкий спосіб): |похибка| ≤ 2·eps</h2><p class='muted'>сітка x від 0 до 6, eps = 1e-2, 1e-4, 1e-6</p><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>x=0.0, eps=0.01, спосіб 2</td><td>2</td><td>2</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.25, eps=0.01, спосіб 2</td><td>1.3880827</td><td>1.3853314</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.5, eps=0.01, спосіб 2</td><td>0.97682571</td><td>0.9744101</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.0, eps=0.01, спосіб 2</td><td>0.50471464</td><td>0.50321472</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.5, eps=0.01, спосіб 2</td><td>0.2731386</td><td>0.27291723</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.0, eps=0.01, спосіб 2</td><td>0.15380091</td><td>0.15365092</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.01, eps=0.01, спосіб 2</td><td>1107.6494</td><td>1107.6545</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.5, eps=0.01, спосіб 2</td><td>1808.0349</td><td>1808.0424</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.0, eps=0.01, спосіб 2</td><td>2980.9469</td><td>2980.958</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.5, eps=0.01, спосіб 2</td><td>4914.7636</td><td>4914.7688</td><td><span class='ok'>✓</span></td></tr><tr><td>x=4.0, eps=0.01, спосіб 2</td><td>8103.0761</td><td>8103.0839</td><td><span class='ok'>✓</span></td></tr><tr><td>x=5.0, eps=0.01, спосіб 2</td><td>22026.46</td><td>22026.466</td><td><span class='ok'>✓</span></td></tr><tr><td>x=6.0, eps=0.01, спосіб 2</td><td>59874.13</td><td>59874.142</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.0, eps=0.0001, спосіб 2</td><td>2</td><td>2</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.25, eps=0.0001, спосіб 2</td><td>1.3853452</td><td>1.3853314</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.5, eps=0.0001, спосіб 2</td><td>0.97442246</td><td>0.9744101</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.0, eps=0.0001, спосіб 2</td><td>0.50321962</td><td>0.50321472</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.5, eps=0.0001, спосіб 2</td><td>0.27291831</td><td>0.27291723</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.0, eps=0.0001, спосіб 2</td><td>0.15365207</td><td>0.15365092</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.01, eps=0.0001, спосіб 2</td><td>1107.6544</td><td>1107.6545</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.5, eps=0.0001, спосіб 2</td><td>1808.0424</td><td>1808.0424</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.0, eps=0.0001, спосіб 2</td><td>2980.9579</td><td>2980.958</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.5, eps=0.0001, спосіб 2</td><td>4914.7688</td><td>4914.7688</td><td><span class='ok'>✓</span></td></tr><tr><td>x=4.0, eps=0.0001, спосіб 2</td><td>8103.0839</td><td>8103.0839</td><td><span class='ok'>✓</span></td></tr><tr><td>x=5.0, eps=0.0001, спосіб 2</td><td>22026.466</td><td>22026.466</td><td><span class='ok'>✓</span></td></tr><tr><td>x=6.0, eps=0.0001, спосіб 2</td><td>59874.142</td><td>59874.142</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.0, eps=1e-06, спосіб 2</td><td>2</td><td>2</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.25, eps=1e-06, спосіб 2</td><td>1.3853317</td><td>1.3853314</td><td><span class='ok'>✓</span></td></tr><tr><td>x=0.5, eps=1e-06, спосіб 2</td><td>0.97441018</td><td>0.9744101</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.0, eps=1e-06, спосіб 2</td><td>0.50321477</td><td>0.50321472</td><td><span class='ok'>✓</span></td></tr><tr><td>x=1.5, eps=1e-06, спосіб 2</td><td>0.27291724</td><td>0.27291723</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.0, eps=1e-06, спосіб 2</td><td>0.15365093</td><td>0.15365092</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.01, eps=1e-06, спосіб 2</td><td>1107.6545</td><td>1107.6545</td><td><span class='ok'>✓</span></td></tr><tr><td>x=2.5, eps=1e-06, спосіб 2</td><td>1808.0424</td><td>1808.0424</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.0, eps=1e-06, спосіб 2</td><td>2980.958</td><td>2980.958</td><td><span class='ok'>✓</span></td></tr><tr><td>x=3.5, eps=1e-06, спосіб 2</td><td>4914.7688</td><td>4914.7688</td><td><span class='ok'>✓</span></td></tr><tr><td>x=4.0, eps=1e-06, спосіб 2</td><td>8103.0839</td><td>8103.0839</td><td><span class='ok'>✓</span></td></tr><tr><td>x=5.0, eps=1e-06, спосіб 2</td><td>22026.466</td><td>22026.466</td><td><span class='ok'>✓</span></td></tr><tr><td>x=6.0, eps=1e-06, спосіб 2</td><td>59874.142</td><td>59874.142</td><td><span class='ok'>✓</span></td></tr></table><p><b>39 / 39</b> збігів.</p><h2>Прямий знакозмінний ряд: втрата точності при x &gt; 2</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>x=0.0, eps=0.01, спосіб 1</td><td>2</td><td>2</td><td><span class='muted'>похибка 0</span></td></tr><tr><td>x=0.25, eps=0.01, спосіб 1</td><td>1.3854167</td><td>1.3853314</td><td><span class='muted'>похибка 8.52e-05</span></td></tr><tr><td>x=0.5, eps=0.01, спосіб 1</td><td>0.97916667</td><td>0.9744101</td><td><span class='muted'>похибка 0.00476</span></td></tr><tr><td>x=1.0, eps=0.01, спосіб 1</td><td>0.50515873</td><td>0.50321472</td><td><span class='muted'>похибка 0.00194</span></td></tr><tr><td>x=1.5, eps=0.01, спосіб 1</td><td>0.27930246</td><td>0.27291723</td><td><span class='muted'>похибка 0.00639</span></td></tr><tr><td>x=2.0, eps=0.01, спосіб 1</td><td>0.14605049</td><td>0.15365092</td><td><span class='muted'>похибка 0.0076</span></td></tr><tr><td>x=2.01, eps=0.01, спосіб 1</td><td>-542.96467</td><td>1107.6545</td><td><span class='muted'>похибка 1.65e+03</span></td></tr><tr><td>x=2.5, eps=0.01, спосіб 1</td><td>222.87816</td><td>1808.0424</td><td><span class='muted'>похибка 1.59e+03</span></td></tr><tr><td>x=3.0, eps=0.01, спосіб 1</td><td>-184.59811</td><td>2980.958</td><td><span class='muted'>похибка 3.17e+03</span></td></tr><tr><td>x=3.5, eps=0.01, спосіб 1</td><td>-392.53445</td><td>4914.7688</td><td><span class='muted'>похибка 5.31e+03</span></td></tr><tr><td>x=4.0, eps=0.01, спосіб 1</td><td>240.60223</td><td>8103.0839</td><td><span class='muted'>похибка 7.86e+03</span></td></tr><tr><td>x=5.0, eps=0.01, спосіб 1</td><td>-357.18801</td><td>22026.466</td><td><span class='muted'>похибка 2.24e+04</span></td></tr><tr><td>x=6.0, eps=0.01, спосіб 1</td><td>-166.94453</td><td>59874.142</td><td><span class='muted'>похибка 6e+04</span></td></tr><tr><td>x=0.0, eps=0.0001, спосіб 1</td><td>2</td><td>2</td><td><span class='muted'>похибка 0</span></td></tr><tr><td>x=0.25, eps=0.0001, спосіб 1</td><td>1.385319</td><td>1.3853314</td><td><span class='muted'>похибка 1.24e-05</span></td></tr><tr><td>x=0.5, eps=0.0001, спосіб 1</td><td>0.97436756</td><td>0.9744101</td><td><span class='muted'>похибка 4.25e-05</span></td></tr><tr><td>x=1.0, eps=0.0001, спосіб 1</td><td>0.50323633</td><td>0.50321472</td><td><span class='muted'>похибка 2.16e-05</span></td></tr><tr><td>x=1.5, eps=0.0001, спосіб 1</td><td>0.27285762</td><td>0.27291723</td><td><span class='muted'>похибка 5.96e-05</span></td></tr><tr><td>x=2.0, eps=0.0001, спосіб 1</td><td>0.15373428</td><td>0.15365092</td><td><span class='muted'>похибка 8.34e-05</span></td></tr><tr><td>x=2.01, eps=0.0001, спосіб 1</td><td>1027.4751</td><td>1107.6545</td><td><span class='muted'>похибка 80.2</span></td></tr><tr><td>x=2.5, eps=0.0001, спосіб 1</td><td>1713.2146</td><td>1808.0424</td><td><span class='muted'>похибка 94.8</span></td></tr><tr><td>x=3.0, eps=0.0001, спосіб 1</td><td>3498.7426</td><td>2980.958</td><td><span class='muted'>похибка 518</span></td></tr><tr><td>x=3.5, eps=0.0001, спосіб 1</td><td>5527.1684</td><td>4914.7688</td><td><span class='muted'>похибка 612</span></td></tr><tr><td>x=4.0, eps=0.0001, спосіб 1</td><td>6266.8992</td><td>8103.0839</td><td><span class='muted'>похибка 1.84e+03</span></td></tr><tr><td>x=5.0, eps=0.0001, спосіб 1</td><td>52377.253</td><td>22026.466</td><td><span class='muted'>похибка 3.04e+04</span></td></tr><tr><td>x=6.0, eps=0.0001, спосіб 1</td><td>-21157.613</td><td>59874.142</td><td><span class='muted'>похибка 8.1e+04</span></td></tr><tr><td>x=0.0, eps=1e-06, спосіб 1</td><td>2</td><td>2</td><td><span class='muted'>похибка 0</span></td></tr><tr><td>x=0.25, eps=1e-06, спосіб 1</td><td>1.385331</td><td>1.3853314</td><td><span class='muted'>похибка 4.19e-07</span></td></tr><tr><td>x=0.5, eps=1e-06, спосіб 1</td><td>0.97440976</td><td>0.9744101</td><td><span class='muted'>похибка 3.44e-07</span></td></tr><tr><td>x=1.0, eps=1e-06, спосіб 1</td><td>0.50321431</td><td>0.50321472</td><td><span class='muted'>похибка 4.18e-07</span></td></tr><tr><td>x=1.5, eps=1e-06, спосіб 1</td><td>0.2729173</td><td>0.27291723</td><td><span class='muted'>похибка 6.82e-08</span></td></tr><tr><td>x=2.0, eps=1e-06, спосіб 1</td><td>0.15365038</td><td>0.15365092</td><td><span class='muted'>похибка 5.45e-07</span></td></tr><tr><td>x=2.01, eps=1e-06, спосіб 1</td><td>1107.2776</td><td>1107.6545</td><td><span class='muted'>похибка 0.377</span></td></tr><tr><td>x=2.5, eps=1e-06, спосіб 1</td><td>1809.8141</td><td>1808.0424</td><td><span class='muted'>похибка 1.77</span></td></tr><tr><td>x=3.0, eps=1e-06, спосіб 1</td><td>2983.1106</td><td>2980.958</td><td><span class='muted'>похибка 2.15</span></td></tr><tr><td>x=3.5, eps=1e-06, спосіб 1</td><td>4904.3742</td><td>4914.7688</td><td><span class='muted'>похибка 10.4</span></td></tr><tr><td>x=4.0, eps=1e-06, спосіб 1</td><td>8152.5291</td><td>8103.0839</td><td><span class='muted'>похибка 49.4</span></td></tr><tr><td>x=5.0, eps=1e-06, спосіб 1</td><td>21751.207</td><td>22026.466</td><td><span class='muted'>похибка 275</span></td></tr><tr><td>x=6.0, eps=1e-06, спосіб 1</td><td>61482.422</td><td>59874.142</td><td><span class='muted'>похибка 1.61e+03</span></td></tr></table><h2>Ланцюговий дріб: |pi_набл − pi| ≤ eps</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>eps=0.01</td><td>3.1396825397 (n=4)</td><td>3.1415926536</td><td><span class='ok'>✓</span></td></tr><tr><td>eps=0.001</td><td>3.1415419860 (n=16)</td><td>3.1415926536</td><td><span class='ok'>✓</span></td></tr><tr><td>eps=0.0001</td><td>3.1415857049 (n=32)</td><td>3.1415926536</td><td><span class='ok'>✓</span></td></tr><tr><td>eps=1e-05</td><td>3.1415917435 (n=64)</td><td>3.1415926536</td><td><span class='ok'>✓</span></td></tr><tr><td>eps=1e-06</td><td>3.1415925371 (n=128)</td><td>3.1415926536</td><td><span class='ok'>✓</span></td></tr></table><p><b>5 / 5</b> збігів.</p></section><hr><section id='ai'><h1>Перевірка коду інструментами штучного інтелекту (простота, Clean code)</h1><p>Аналіз коду виконав ШІ-асистент Claude (Anthropic): прочитано кожну програму, перевірено її за критеріями чистого коду й за вимогами завдання, автоматично пораховано метрики та пошук заборонених конструкцій. Нижче — критерії, вимірювання й висновки; випадки, де за результатами перевірки код було змінено, позначені «знайдено й виправлено».</p><h2>Критерії</h2><table class='t'><tr><th>Критерій</th><th>Що перевірялось</th></tr><tr><td>Іменування</td><td>імена відображають зміст (дієслова для дій, іменники для даних)</td></tr><tr><td>Малі функції</td><td>одна процедура — одна відповідальність; довжина процедур</td></tr><tr><td>Відсутність побічних ефектів</td><td>немає set!, змінних стану; значення передаються параметрами</td></tr><tr><td>Відповідність обмеженням</td><td>заборонені конструкції (let, let*, letrec, do, while, for, loop)</td></tr><tr><td>Простота</td><td>немає дублювання обчислень, зайвих абстракцій; коментарі пояснюють «чому», а не «що»</td></tr><tr><td>Коректність і тестованість</td><td>чисті процедури можна перевірити окремо (див. розділ «Оцінка достовірності»)</td></tr></table><div class='card'>У цій лабораторній let, let*, letrec, set! та цикли <b>заборонені</b>: у таблицях нижче всі лічильники мають бути нульовими.</div><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>98</td><td>54</td><td>30</td><td>18</td><td>3.0</td><td>8</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Кожна процедура виконує одне завдання: <code>exp-sum</code> — сума ряду, <code>y-taylor</code> — розгалуження, <code>tabulate</code> — цикл, <code>print-row</code> — виведення. Допоміжні рекурсивні процедури мають описові імена.</li><li>Параметри точності й режиму проходять через усі рівні явно — немає глобального стану; заборонених конструкцій немає (перевірено автоматично).</li><li><b>Знайдено й виправлено:</b> після тестування виявлено, що прямий знакозмінний ряд дає невеликі, але непридатні похибки при x &gt; 2 (до 49 для x = 4). Додано стійкий спосіб <code>exp-neg-stable</code> та параметр <code>mode</code>; різницю задокументовано в звіті.</li><li><b>Знайдено й виправлено:</b> у <code>print-row</code> значення Y двічі обчислювалось для одного рядка; винесено <code>print-row-value</code>, що приймає вже обчислені значення.</li><li><b>Зауваження:</b> функція <code>round-to</code> використовує <code>expt</code> та <code>round</code> лише для форматування таблиці; на точність обчислень не впливає.</li></ul><h2>Задача 2.2: Ланцюговий дріб для π</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>61</td><td>26</td><td>26</td><td>8</td><td>3.2</td><td>6</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Процедури короткі (≤ 6 рядків), присутній коментар із виведенням формули; єдине «магічне» число 6 і початкове значення 3 винесено в коментар до формули.</li><li>Хвостова рекурсія в <code>cf-down</code> і <code>refine</code> не збільшує стек — безпечно навіть для мільйонів ланок.</li><li>Заборонених конструкцій немає.</li><li><b>Зауваження:</b> <code>cf-pi</code> двічі викликається в <code>refine</code> для одного n; на практиці це подвоює вартість останнього кроку, але спрощує читання. У прикладі n ≤ 128, тому накладні витрати непомітні.</li></ul><p class='muted'>Примітка: метрики розраховано автоматично; змістовні висновки — експертна оцінка асистента. Перевірку слід розглядати як допоміжну: остаточну відповідальність за код несе автор.</p></section><hr><section id='vysnovok'><h1>Висновок</h1><div class='card'><p>Розроблено програми табуляції функції Y(x) за рядом Тейлора та обчислення π ланцюговим дробом із заданою точністю. Показано, що рекурентне співвідношення a<sub>k+1</sub> = a<sub>k</sub>·z/(k+1) дозволяє обчислювати ряд за O(K) операцій без степенів і факторіалів, а хвостова рекурсія забезпечує сталу глибину стеку. Експериментально встановлено й теоретично пояснено втрату точності знакозмінного ряду для e<sup>−x</sup> при x &gt; 2 та запропоновано стійке обчислення 1/e<sup>x</sup>. Ланцюговий дріб збігається швидко: 128 ланок дають π з похибкою 1,2·10<sup>−7</sup>. Усі результати (44 порівняння) збігаються з еталоном math.exp і math.pi у межах заданої точності.</p></div></section><hr></main></div></body></html>

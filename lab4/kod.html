@@ -1,0 +1,196 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР4: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 4</h2><div class="sub">Програмування списків мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 4.1: Список непарних чисел</h2><a class='dl' href='../assets/lab4/task1.scm' download>⬇ task1_odd_list.scm</a><pre><code>;; =====================================================================
+;; ЛР4, варіант 3, задача 3.1. Робота зі списком непарних натуральних чисел
+;;  - згенерувати список перших k непарних чисел (1, 3, 5, ...) і вивести його;
+;;  - додати в кінець списку m нових елементів (продовження послідовності непарних чисел);
+;;  - інвертувати список із заданої позиції p до кінця; а також від початку до позиції p;
+;;  - сформувати новий список із квадратів чисел вхідного списку.
+;; Усі процедури — рекурсивні, без зміни стану (set!, let не використовуються).
+;; =====================================================================
+
+;; ---------- Базові процедури над списками ----------
+(define (my-length lst)
+  (if (null? lst) 0 (+ 1 (my-length (cdr lst)))))
+
+(define (my-append a b)
+  (if (null? a) b (cons (car a) (my-append (cdr a) b))))
+
+;; Інверсія списку хвостовою рекурсією з акумулятором
+(define (my-reverse lst)
+  (reverse-acc lst &#x27;()))
+(define (reverse-acc lst acc)
+  (if (null? lst) acc (reverse-acc (cdr lst) (cons (car lst) acc))))
+
+;; Перші p елементів і решта (позиції рахуються з 1)
+(define (take lst p)
+  (if (or (= p 0) (null? lst)) &#x27;() (cons (car lst) (take (cdr lst) (- p 1)))))
+(define (drop lst p)
+  (if (or (= p 0) (null? lst)) lst (drop (cdr lst) (- p 1))))
+
+(define (last-element lst)
+  (if (null? (cdr lst)) (car lst) (last-element (cdr lst))))
+
+;; ---------- Генерація ----------
+;; k непарних чисел, починаючи з first (first — непарне)
+(define (odds-from first k)
+  (if (= k 0) &#x27;() (cons first (odds-from (+ first 2) (- k 1)))))
+
+(define (odd-list k) (odds-from 1 k))
+
+;; ---------- Додавання елементів у кінець ----------
+;; Нові елементи продовжують послідовність: після останнього x йдуть x+2, x+4, ...
+(define (add-to-end lst m)
+  (my-append lst (odds-from (if (null? lst) 1 (+ 2 (last-element lst))) m)))
+
+;; ---------- Інверсія частини списку ----------
+;; Від позиції p до кінця: (e1 ... e_(p-1)) + інверсія (e_p ... e_n)
+(define (reverse-from lst p)
+  (my-append (take lst (- p 1)) (my-reverse (drop lst (- p 1)))))
+
+;; Від початку до позиції p: інверсія (e1 ... e_p) + (e_(p+1) ... e_n)
+(define (reverse-to lst p)
+  (my-append (my-reverse (take lst p)) (drop lst p)))
+
+;; ---------- Квадрати ----------
+(define (squares lst)
+  (if (null? lst) &#x27;() (cons (* (car lst) (car lst)) (squares (cdr lst)))))
+
+;; ---------- Інтерфейс ----------
+(define (show label lst)
+  (display label) (display lst) (newline))
+
+(define (main)
+  (display &quot;Кількість непарних чисел k: &quot;) (ask-m (read)))
+(define (ask-m k)
+  (display &quot;Скільки елементів додати в кінець (m): &quot;) (ask-p k (read)))
+(define (ask-p k m)
+  (display &quot;Позиція p для інверсії (1..довжина списку): &quot;) (run k m (read)))
+
+(define (run k m p)
+  (newline)
+  (steps (odd-list k) m p))
+
+(define (steps lst m p)
+  (show &quot;Початковий список:                    &quot; lst)
+  (steps2 (add-to-end lst m) m p))
+(define (steps2 ext m p)
+  (display &quot;Додано елементів: &quot;) (display m) (newline)
+  (show &quot;Список після додавання:               &quot; ext)
+  (display &quot;Позиція p = &quot;) (display p) (newline)
+  (show &quot;Інверсія від позиції p до кінця:      &quot; (reverse-from ext p))
+  (show &quot;Інверсія від початку до позиції p:    &quot; (reverse-to ext p))
+  (show &quot;Новий список — квадрати елементів:    &quot; (squares ext)))
+</code></pre><h2>Задача 4.2: Модель усного іспиту</h2><a class='dl' href='../assets/lab4/task2.scm' download>⬇ task2_exam.scm</a><pre><code>;; =====================================================================
+;; ЛР4, варіант 3, задача 3.2. Модель усного іспиту в режимі «реального часу».
+;; Допущені до іспиту студенти утворюють список (ідентифікатори — порядкові номери).
+;; Екзаменатор викликає перших двох студентів зі списку. Поки перший відповідає
+;; екзаменатору (задаються 2 запитання), другий готує письмову відповідь; потім вони
+;; міняються. Спілкування з парою триває m хвилин, після чого викликаються наступні двоє.
+;; Хто не склав — потрапляє до списку на перездачу.
+;;
+;; Час моделюється змінною clock (хвилини від початку іспиту, початок о 09:00).
+;; Оцінки студентів — псевдовипадкові (лінійний конгруентний генератор), початкове
+;; значення seed вводиться з клавіатури, тому прогін відтворюваний.
+;; Зміна стану не використовується: список, годинник, генератор та результати
+;; передаються параметрами рекурсивної процедури.
+;; =====================================================================
+
+;; ---------- Список студентів: 1, 2, ..., n ----------
+(define (students-from i n)
+  (if (&gt; i n) &#x27;() (cons i (students-from (+ i 1) n))))
+
+;; ---------- Псевдовипадкові числа ----------
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (score-of s) (remainder (quotient s 65536) 101))      ; оцінка 0..100
+(define pass-threshold 60)
+
+;; ---------- Допоміжне ----------
+(define (my-append a b)
+  (if (null? a) b (cons (car a) (my-append (cdr a) b))))
+
+(define (pad2 x) (if (&lt; x 10) (string-append &quot;0&quot; (number-&gt;string x)) (number-&gt;string x)))
+(define (time-&gt;string clock)
+  (string-append (pad2 (+ 9 (quotient clock 60))) &quot;:&quot; (pad2 (remainder clock 60))))
+
+(define (say clock text)
+  (display &quot;[&quot;) (display (time-&gt;string clock)) (display &quot;] &quot;) (display text) (newline))
+
+;; ---------- Відповідь одного студента ----------
+;; Студент відповідає екзаменатору протягом dur хвилин, починаючи з моменту start.
+;; Повертає список (склав?  новий-seed).
+(define (examine id start dur seed)
+  (say start (string-append &quot;Студент №&quot; (number-&gt;string id) &quot; відповідає екзаменатору (2 запитання)&quot;))
+  (verdict id (+ start dur) (score-of (next-seed seed)) (next-seed seed)))
+
+(define (verdict id clock score seed)
+  (say clock (string-append &quot;Студент №&quot; (number-&gt;string id) &quot;: оцінка &quot; (number-&gt;string score)
+                            (if (&gt;= score pass-threshold) &quot; — ЗАРАХОВАНО&quot; &quot; — НЕ ЗАРАХОВАНО&quot;)))
+  (list (&gt;= score pass-threshold) seed))
+
+;; ---------- Внесення результату до списків ----------
+;; Повертає (passed retake) після додавання id до відповідного списку
+(define (add-result passed? id passed retake)
+  (if passed?
+      (list (my-append passed (list id)) retake)
+      (list passed (my-append retake (list id)))))
+
+;; ---------- Основна рекурсія ----------
+;; queue — черга студентів; m — тривалість спілкування з парою (хв); clock — годинник;
+;; passed, retake — накопичені списки; seed — стан генератора.
+(define (run-exam queue m clock passed retake seed)
+  (cond ((null? queue) (list passed retake clock))
+        ((null? (cdr queue)) (run-single (car queue) m clock passed retake seed))
+        (else (run-pair (car queue) (cadr queue) (cddr queue) m clock passed retake seed))))
+
+;; Пара студентів a та b: спершу відповідає a (b готується), потім b
+(define (run-pair a b rest m clock passed retake seed)
+  (say clock (string-append &quot;Екзаменатор викликає студентів №&quot; (number-&gt;string a) &quot; і №&quot; (number-&gt;string b)))
+  (say clock (string-append &quot;Студент №&quot; (number-&gt;string b) &quot; готує письмову відповідь&quot;))
+  (pair-second a b rest m clock passed retake (examine a clock (quotient m 2) seed)))
+
+(define (pair-second a b rest m clock passed retake res-a)
+  (pair-finish a b rest m clock (add-result (car res-a) a passed retake)
+               (examine b (+ clock (quotient m 2)) (quotient m 2) (cadr res-a))))
+
+(define (pair-finish a b rest m clock lists res-b)
+  (say (+ clock m) (string-append &quot;Спілкування з парою (№&quot; (number-&gt;string a) &quot;, №&quot; (number-&gt;string b) &quot;) завершено&quot;))
+  (newline)
+  (next-round rest m (+ clock m) (add-result (car res-b) b (car lists) (cadr lists)) (cadr res-b)))
+
+(define (next-round rest m clock lists seed)
+  (run-exam rest m clock (car lists) (cadr lists) seed))
+
+;; Останній студент без пари (непарна кількість)
+(define (run-single a m clock passed retake seed)
+  (say clock (string-append &quot;Екзаменатор викликає студента №&quot; (number-&gt;string a) &quot; (без пари)&quot;))
+  (single-finish a m clock passed retake (examine a clock (quotient m 2) seed)))
+
+(define (single-finish a m clock passed retake res)
+  (newline)
+  (finish-single-lists (+ clock (quotient m 2)) (add-result (car res) a passed retake)))
+
+(define (finish-single-lists clock lists)
+  (list (car lists) (cadr lists) clock))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Кількість студентів, допущених до іспиту: &quot;) (ask-m (read)))
+(define (ask-m n)
+  (display &quot;Тривалість спілкування з парою m (хв, парне): &quot;) (ask-seed n (read)))
+(define (ask-seed n m)
+  (display &quot;Початкове число генератора (seed): &quot;) (run n m (read)))
+
+(define (run n m seed)
+  (newline)
+  (say 0 &quot;Іспит розпочато&quot;)
+  (newline)
+  (print-result (run-exam (students-from 1 n) m 0 &#x27;() &#x27;() seed)))
+
+(define (print-result r)
+  (display &quot;Іспит завершено о &quot;) (display (time-&gt;string (caddr r))) (newline)
+  (display &quot;Склали іспит:      &quot;) (display (car r)) (newline)
+  (display &quot;Призначена перездача: &quot;) (display (cadr r)) (newline))
+</code></pre></main></div></body></html>

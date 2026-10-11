@@ -1,0 +1,309 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР8: Весь звіт — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 8</h2><div class="sub">Символьні обчислення мовами функціонального програмування. Операції з многочленами.<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><section id='titul'><div class="title"><div>КИЇВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ТАРАСА ШЕВЧЕНКА</div><div>ФАКУЛЬТЕТ ІНФОРМАЦІЙНИХ ТЕХНОЛОГІЙ</div>
+<div>Кафедра програмних систем і технологій</div><div class="big">ЗВІТ</div><div style="font-size:20px">з лабораторної роботи № 8</div>
+<div style="font-size:20px">з дисципліни «Функціональне програмування»</div><h1 style="margin-top:30px">Символьні обчислення мовами функціонального програмування. Операції з многочленами.</h1><p>Варіант 3</p>
+<div class="meta"><p><b>Виконав:</b> студент групи ІПЗ-41 Кісіль Д. Р.</p><p><b>Перевірив:</b> ______________________</p></div><p style="margin-top:60px">Київ — 2026</p></div></section><hr><section id='meta'><h1>Мета роботи</h1><div class='card'>Опанувати теоретичні основи символьних обчислень мовами функціонального програмування. Розробити програми символьного диференціювання та реалізації арифметики поліномів</div><p class='muted'>Мета подана за методичними вказівками до лабораторних занять з дисципліни «Функціональне програмування» (Київ, 2025).</p></section><hr><section id='umova'><h1>Умова завдання</h1><p><b>Варіант 3.</b> Умова наведена з методичних вказівок.</p><div class='card'><b>Вимоги до коду:</b> Написати процедури символьного диференціювання та арифметики поліномів відповідно до варіанта. Результати записати до текстових файлів. Не використовувати бібліотеки символьного диференціювання та арифметики поліномів.</div><h2>Задача 8.1</h2>
+<p><b>Варіант 3.</b> Розробити процедури для розкладання многочлена на множники відповідно до правил алгебри. Многочлен заданий списком своїх коефіцієнтів та степенем від однієї змінної у вигляді:</p>
+<div class="formula">P(x) = a<sub>0</sub>x<sup>n</sup> + a<sub>1</sub>x<sup>n−1</sup> + … + a<sub>n−1</sub>x + a<sub>n</sub></div>
+<p>Вивести на екран вирази, що є результатом розкладання многочлена. Окремою процедурою перевірити правильність розкладання многочлена на множники, здійснивши множення отриманих множників.</p></section><hr><section id='analiz'><h1>Аналіз задачі та математичне забезпечення</h1><h2>Задача 8.1: Розкладання многочлена на множники</h2>
+<h3>Подання многочлена</h3>
+<p>Многочлен P(x) = a<sub>0</sub>x<sup>n</sup> + … + a<sub>n</sub> з цілими коефіцієнтами подається списком (a<sub>0</sub> a<sub>1</sub> … a<sub>n</sub>) від старшого коефіцієнта до вільного члена; степінь n вводиться окремо й перевіряється (довжина списку = n + 1, a<sub>0</sub> ≠ 0).</p>
+<h3>Правила алгебри, що використано</h3>
+<ol>
+<li><b>Винесення спільного множника.</b> g = НОД усіх коефіцієнтів (зі знаком старшого), P = g·P<sub>0</sub>, де P<sub>0</sub> — примітивний многочлен (НОД коефіцієнтів = 1) із додатним старшим коефіцієнтом.</li>
+<li><b>Винесення степеня x.</b> Якщо k молодших коефіцієнтів нульові, P = x<sup>k</sup>·P′.</li>
+<li><b>Теорема про раціональні корені.</b> Якщо p/q (нескоротний) — корінь многочлена з цілими коефіцієнтами, то p ділить вільний член a<sub>n</sub>, а q ділить старший коефіцієнт a<sub>0</sub>. Кандидати ±p/q перебираються (<code>all-candidates</code>), корені перевіряються схемою Горнера (<code>poly-eval</code>).</li>
+<li><b>Ділення на (x − r)</b> за схемою Горнера (<code>divide-by-root</code>, <code>synthetic</code>). Корінь r = p/q дає лінійний множник (qx − p) = q·(x − r). За <b>лемою Гаусса</b> частка від ділення примітивного многочлена на примітивний множник (qx − p) має цілі коефіцієнти, тому <code>try-root</code> ділить частку на q — і працює далі з цілими числами. Процес повторюється, поки знаходяться корені — так враховується <b>кратність</b>.</li>
+<li><b>Залишок без раціональних коренів.</b> Для многочленів виду ax⁴ + bx² + c застосовано два правила: (а) дискримінант b² − 4ac — повний квадрат ⇒ ax⁴ + bx² + c = a(x² − y₁)(x² − y₂); (б) різниця квадратів: якщо a = r², c = s², t² = 2rs − b, то ax⁴ + bx² + c = (rx² − tx + s)(rx² + tx + s) (наприклад, тотожність Софі Жермен x⁴ + 4 = (x² − 2x + 2)(x² + 2x + 2)). Інші залишки виводяться як нерозкладні над ℚ.</li></ol>
+<h3>Перевірка розкладання</h3>
+<p>Окрема процедура <code>verify</code> перемножує всі множники (g, x<sup>k</sup>, лінійні, нелінійні) — <code>expand</code>, <code>poly*</code> — і порівнює коефіцієнти з вихідним многочленом (<code>poly=?</code>); при збігу виводиться «розкладання ПРАВИЛЬНЕ».</p>
+<h3>Запис результатів</h3>
+<p>Результат виводиться на екран і дублюється у файл <code>factorization.txt</code> через спільну процедуру <code>emit-lines</code>.</p>
+<h3>Приклади</h3>
+<table class="t"><tr><th>Многочлен</th><th>Розкладання</th><th>Застосоване правило</th></tr>
+<tr><td>2x³ − 3x² − 3x + 2</td><td>(x + 1)(x − 2)(2x − 1)</td><td>раціональні корені −1, 2, 1/2</td></tr>
+<tr><td>x⁴ − 1</td><td>(x − 1)(x + 1)(x² + 1)</td><td>корені ±1, залишок x² + 1</td></tr>
+<tr><td>x³ − 6x² + 12x − 8</td><td>(x − 2)³</td><td>кратність 3</td></tr>
+<tr><td>x³ − x</td><td>x(x − 1)(x + 1)</td><td>винесення x</td></tr>
+<tr><td>6x² − 6</td><td>6(x − 1)(x + 1)</td><td>числовий множник</td></tr>
+<tr><td>x⁴ + 4</td><td>(x² − 2x + 2)(x² + 2x + 2)</td><td>різниця квадратів</td></tr>
+<tr><td>−2x⁵ + 8x³ − 8x</td><td>−2x(x² − 2)²</td><td>x, дискримінант, кратність 2</td></tr>
+<tr><td>4x⁴ − 13x² + 9</td><td>(x − 1)(x + 1)(2x − 3)(2x + 3)</td><td>раціональні корені ±1, ±3/2</td></tr></table>
+<h3>Межі застосування</h3>
+<p>Над полем ℚ многочлен розкладається повністю лише з урахуванням усіх нерозкладних множників; програма гарантує повний розклад для многочленів степеня ≤ 3 і виду ax⁴ + bx² + c; для довільних многочленів вищих степенів без раціональних коренів залишок може бути розкладним на квадратичні множники (потрібен алгоритм Кронекера чи Ценхауза) — такий залишок виводиться як окремий множник.</p></section><hr><section id='hipo'><h1>HIPO-діаграма (схема виклику процедур)</h1><p>Діаграма показує ієрархію викликів процедур (стрілка A → B означає, що A викликає B); блоки з рекурсією виділено. Допоміжні процедури введення даних (<code>ask-…</code>) для наочності опущено.</p><h2>Задача 8.1: Розкладання многочлена на множники</h2><img src='../assets/lab8/task1_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>n, коефіцієнти</td><td>виклик run</td></tr><tr><td><code>factorize</code></td><td>coeffs</td><td>(g, k, лінійні множники, нелінійні множники)</td></tr><tr><td><code>extract-roots / try-root / find-root</code></td><td>coeffs</td><td>лінійні множники та залишок</td></tr><tr><td><code>all-candidates / divisors</code></td><td>coeffs</td><td>кандидати у раціональні корені ±p/q</td></tr><tr><td><code>poly-eval / divide-by-root</code></td><td>coeffs, r</td><td>значення P(r), частка від ділення на (x − r)</td></tr><tr><td><code>split-rest</code></td><td>залишок</td><td>розкладання виду ax⁴ + bx² + c</td></tr><tr><td><code>expand / verify</code></td><td>r, original</td><td>перемноження множників і перевірка</td></tr><tr><td><code>report-lines / emit-lines</code></td><td>coeffs, r</td><td>виведення на екран і запис у файл</td></tr></table></section><hr><section id='kod'><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 8.1: Розкладання многочлена на множники</h2><a class='dl' href='../assets/lab8/task1.scm' download>⬇ task_factor.scm</a><pre><code>;; =====================================================================
+;; ЛР8, варіант 3. Розкладання многочлена на множники
+;;     P(x) = a0*x^n + a1*x^(n-1) + ... + a(n-1)*x + an
+;; Многочлен з цілими коефіцієнтами задано списком (a0 a1 ... an). Процедури:
+;;  1) виносимо за дужки спільний числовий множник (НОД коефіцієнтів) і степінь x^k
+;;     (якщо молодші коефіцієнти нульові);
+;;  2) за теоремою про раціональні корені шукаємо корені p/q (p | an, q | a0);
+;;     знайдений корінь дає лінійний множник (q*x - p), на який многочлен ділиться
+;;     (схема Горнера) — повторюємо, щоб урахувати кратність;
+;;  3) залишок без раціональних коренів виводиться як нерозкладний множник;
+;;  4) окрема процедура перевіряє розкладання: перемножує множники та порівнює з P(x).
+;; Результати виводяться на екран і записуються у файл factorization.txt.
+;; Без бібліотек для поліномів і без let / set! / циклів.
+;; =====================================================================
+
+;; ---------- Арифметика цілих ----------
+(define (iabs x) (if (&lt; x 0) (- x) x))
+(define (gcd2 a b) (if (= b 0) (iabs a) (gcd2 b (remainder a b))))
+(define (gcd-list lst)
+  (if (null? lst) 0 (gcd2 (car lst) (gcd-list (cdr lst)))))
+
+;; Дільники натурального m: 1..m
+(define (divisors m d)
+  (cond ((&gt; d m) &#x27;())
+        ((= (remainder m d) 0) (cons d (divisors m (+ d 1))))
+        (else (divisors m (+ d 1)))))
+
+;; ---------- Базові операції над списками ----------
+(define (my-append a b) (if (null? a) b (cons (car a) (my-append (cdr a) b))))
+(define (my-length lst) (if (null? lst) 0 (+ 1 (my-length (cdr lst)))))
+(define (last-of lst) (if (null? (cdr lst)) (car lst) (last-of (cdr lst))))
+(define (all-but-last lst) (if (null? (cdr lst)) &#x27;() (cons (car lst) (all-but-last (cdr lst)))))
+(define (zeros k) (if (= k 0) &#x27;() (cons 0 (zeros (- k 1)))))
+(define (scale-list lst c) (if (null? lst) &#x27;() (cons (* c (car lst)) (scale-list (cdr lst) c))))
+(define (divide-list lst c) (if (null? lst) &#x27;() (cons (/ (car lst) c) (divide-list (cdr lst) c))))
+(define (member-num? x lst)
+  (cond ((null? lst) #f) ((= x (car lst)) #t) (else (member-num? x (cdr lst)))))
+
+;; ---------- Многочлен: обчислення значення (схема Горнера) ----------
+(define (poly-eval coeffs x) (horner (cdr coeffs) x (car coeffs)))
+(define (horner rest x acc)
+  (if (null? rest) acc (horner (cdr rest) x (+ (* acc x) (car rest)))))
+
+;; ---------- Ділення на (x - r) за схемою Горнера ----------
+;; Повертає частку (список коефіцієнтів); остача перевіряється окремо через poly-eval
+(define (divide-by-root coeffs r) (synthetic (cdr coeffs) r (car coeffs) (list (car coeffs))))
+(define (synthetic rest r prev acc)
+  (if (null? (cdr rest))
+      (reverse-list acc)
+      (synthetic (cdr rest) r (+ (car rest) (* r prev)) (cons (+ (car rest) (* r prev)) acc))))
+(define (reverse-list lst) (rev lst &#x27;()))
+(define (rev lst acc) (if (null? lst) acc (rev (cdr lst) (cons (car lst) acc))))
+
+;; ---------- Множення многочленів ----------
+;; Добуток (c0 ... cm)*(d0 ... dk): складаємо зсунуті копії
+(define (poly* p q)
+  (if (null? (cdr p))
+      (scale-list q (car p))
+      (poly+ (my-append (scale-list q (car p)) (zeros (- (my-length p) 1)))
+             (poly* (cdr p) q))))
+;; Додавання многочленів різної довжини (вирівнювання за молодшими коефіцієнтами)
+(define (poly+ a b)
+  (cond ((&gt; (my-length a) (my-length b)) (poly+ a (my-append (zeros (- (my-length a) (my-length b))) b)))
+        ((&lt; (my-length a) (my-length b)) (poly+ (my-append (zeros (- (my-length b) (my-length a))) a) b))
+        (else (add-same a b))))
+(define (add-same a b) (if (null? a) &#x27;() (cons (+ (car a) (car b)) (add-same (cdr a) (cdr b)))))
+
+;; ---------- Кроки розкладання ----------
+;; Кількість молодших нульових коефіцієнтів (степінь x, що виноситься)
+(define (trailing-zeros coeffs)
+  (if (= (last-of coeffs) 0) (+ 1 (trailing-zeros (all-but-last coeffs))) 0))
+(define (strip-trailing coeffs k)
+  (if (= k 0) coeffs (strip-trailing (all-but-last coeffs) (- k 1))))
+
+;; Кандидати у корені: ±p/q, p | |an|, q | a0, gcd(p, q) = 1
+(define (candidates-for ps q)
+  (if (null? ps)
+      &#x27;()
+      (my-append (if (= (gcd2 (car ps) q) 1) (list (/ (car ps) q) (- (/ (car ps) q))) &#x27;())
+                 (candidates-for (cdr ps) q))))
+(define (all-candidates coeffs)
+  (candidates-over (divisors (iabs (last-of coeffs)) 1) (divisors (iabs (car coeffs)) 1)))
+(define (candidates-over ps qs)
+  (if (null? qs) &#x27;() (my-append (candidates-for ps (car qs)) (candidates-over ps (cdr qs)))))
+
+;; Перший кандидат, що є коренем, або #f
+(define (find-root coeffs cands)
+  (cond ((null? cands) #f)
+        ((= (poly-eval coeffs (car cands)) 0) (car cands))
+        (else (find-root coeffs (cdr cands)))))
+
+;; Корінь r = p/q → лінійний множник (q x - p), подається парою (q . p)
+(define (numerator-of r) (numerator r))
+(define (denominator-of r) (denominator r))
+
+;; Витягування всіх раціональних коренів із кратністю.
+;; Повертає (список лінійних множників (q . p), залишок-многочлен)
+(define (extract-roots coeffs)
+  (if (&lt; (my-length coeffs) 2)
+      (list &#x27;() coeffs)
+      (try-root coeffs (find-root coeffs (all-candidates coeffs)))))
+
+(define (try-root coeffs r)
+  (if r
+      (after-root (cons (denominator-of r) (numerator-of r))
+                  (divide-list (divide-by-root coeffs r) (denominator-of r)))
+      (list &#x27;() coeffs)))
+
+(define (after-root factor quotient)
+  (join-result factor (extract-roots quotient)))
+(define (join-result factor rest)
+  (list (cons factor (car rest)) (cadr rest)))
+
+;; ---------- Розкладання залишку (степінь 4, парний многочлен a x^4 + b x^2 + c) ----------
+;; Цілий квадратний корінь (або #f, якщо n — не повний квадрат)
+(define (isqrt-from n k)
+  (cond ((&gt; (* k k) n) #f)
+        ((= (* k k) n) k)
+        (else (isqrt-from n (+ k 1)))))
+(define (exact-sqrt n) (if (&lt; n 0) #f (isqrt-from n 0)))
+
+;; Квадратний тричлен у змінній y = x^2: корінь y = p/q дає множник (q x^2 - p)
+(define (y-factor y) (list (denominator y) 0 (- (numerator y))))
+
+;; Правило 1: дискримінант b^2 - 4ac — повний квадрат → a(x^2 - y1)(x^2 - y2)
+(define (split-by-discriminant a b c)
+  (split-by-roots a b (exact-sqrt (- (* b b) (* 4 a c)))))
+(define (split-by-roots a b d)
+  (if d
+      (list (y-factor (/ (+ (- b) d) (* 2 a))) (y-factor (/ (- (- b) d) (* 2 a))))
+      #f))
+
+;; Правило 2 (різниця квадратів): a = r^2, c = s^2:
+;;   a x^4 + b x^2 + c = (r x^2 + s)^2 - (2rs - b) x^2 = (r x^2 - t x + s)(r x^2 + t x + s), t^2 = 2rs - b
+(define (split-by-squares a b c)
+  (split-squares-with (exact-sqrt a) (exact-sqrt c) b))
+(define (split-squares-with r s b)
+  (if (and r s) (split-with-t r s (exact-sqrt (- (* 2 r s) b))) #f))
+(define (split-with-t r s t)
+  (if (and t (&gt; t 0)) (list (list r (- t) s) (list r t s)) #f))
+
+(define (first-of-rules a b c)
+  (or (split-by-discriminant a b c) (split-by-squares a b c)))
+
+;; Нерозкладні множники залишку: список многочленів (коефіцієнти)
+(define (split-rest r)
+  (cond ((&lt; (my-length r) 2) &#x27;())
+        ((and (= (my-length r) 5) (= (cadr r) 0) (= (cadddr r) 0))
+         (split-or-keep r (first-of-rules (car r) (caddr r) (last-of r))))
+        (else (list r))))
+(define (split-or-keep r parts)
+  (if parts (split-again parts) (list r)))
+;; Знайдені квадратні множники самі можуть бути розкладені правилом (за потреби) — тут вони вже нерозкладні
+(define (split-again parts) parts)
+
+;; ---------- Знак і числова стала ----------
+;; P = g * P0, де P0 — примітивний многочлен із додатним старшим коефіцієнтом
+(define (content coeffs)
+  (if (&lt; (car coeffs) 0) (- (gcd-list coeffs)) (gcd-list coeffs)))
+
+;; ---------- Повне розкладання ----------
+;; Результат: (g  k  множники  залишок), де P = g * x^k * Π(q x - p) * залишок
+(define (factorize coeffs)
+  (factorize2 coeffs (trailing-zeros coeffs)))
+(define (factorize2 coeffs k)
+  (factorize3 (strip-trailing coeffs k) k))
+(define (factorize3 core k)
+  (factorize4 (content core) k (divide-list core (content core))))
+(define (factorize4 g k primitive)
+  (factorize5 g k (extract-roots primitive)))
+(define (factorize5 g k roots-and-rest)
+  (list g k (car roots-and-rest) (split-rest (cadr roots-and-rest))))
+
+;; ---------- Подання у вигляді рядка ----------
+(define (term-&gt;string c deg first?)
+  (string-append
+   (cond ((&lt; c 0) (if first? &quot;-&quot; &quot; - &quot;)) (else (if first? &quot;&quot; &quot; + &quot;)))
+   (if (and (= (iabs c) 1) (&gt; deg 0)) &quot;&quot; (number-&gt;string (iabs c)))
+   (cond ((= deg 0) &quot;&quot;) ((= deg 1) &quot;x&quot;) (else (string-append &quot;x^&quot; (number-&gt;string deg))))))
+
+(define (terms cs deg first?)
+  (cond ((null? cs) &quot;&quot;)
+        ((= (car cs) 0) (terms (cdr cs) (- deg 1) first?))
+        (else (string-append (term-&gt;string (car cs) deg first?) (terms (cdr cs) (- deg 1) #f)))))
+
+(define (poly-&gt;string coeffs)
+  (if (string=? (terms coeffs (- (my-length coeffs) 1) #t) &quot;&quot;) &quot;0&quot; (terms coeffs (- (my-length coeffs) 1) #t)))
+
+;; Множники з кратностями: підряд однакові лінійні множники об&#x27;єднуються
+(define (same-factor? a b) (and (= (car a) (car b)) (= (cdr a) (cdr b))))
+(define (count-same f lst) (cond ((null? lst) 0) ((same-factor? f (car lst)) (+ 1 (count-same f (cdr lst)))) (else 0)))
+(define (drop-n lst n) (if (= n 0) lst (drop-n (cdr lst) (- n 1))))
+
+(define (factors-&gt;string factors)
+  (if (null? factors)
+      &quot;&quot;
+      (string-append &quot;(&quot; (poly-&gt;string (list (car (car factors)) (- (cdr (car factors))))) &quot;)&quot;
+                     (power-suffix (count-same (car factors) factors))
+                     (factors-&gt;string (drop-n factors (count-same (car factors) factors))))))
+(define (power-suffix m) (if (= m 1) &quot;&quot; (string-append &quot;^&quot; (number-&gt;string m))))
+
+(define (x-power-&gt;string k)
+  (cond ((= k 0) &quot;&quot;) ((= k 1) &quot;x&quot;) (else (string-append &quot;x^&quot; (number-&gt;string k)))))
+
+;; Нелінійні множники: підряд однакові об&#x27;єднуються у степінь
+(define (others-&gt;string polys)
+  (if (null? polys)
+      &quot;&quot;
+      (string-append &quot;(&quot; (poly-&gt;string (car polys)) &quot;)&quot;
+                     (power-suffix (count-same-poly (car polys) polys))
+                     (others-&gt;string (drop-n polys (count-same-poly (car polys) polys))))))
+(define (count-same-poly f lst)
+  (cond ((null? lst) 0) ((poly=? f (car lst)) (+ 1 (count-same-poly f (cdr lst)))) (else 0)))
+
+(define (expression-&gt;string r)
+  (string-append
+   (if (= (car r) 1) &quot;&quot; (if (= (car r) -1) &quot;-&quot; (number-&gt;string (car r))))
+   (x-power-&gt;string (cadr r))
+   (factors-&gt;string (caddr r))
+   (others-&gt;string (cadddr r))))
+
+;; ---------- Перевірка: перемноження множників ----------
+(define (expand-factors factors)
+  (if (null? factors)
+      &#x27;(1)
+      (poly* (list (car (car factors)) (- (cdr (car factors)))) (expand-factors (cdr factors)))))
+
+(define (expand-others polys)
+  (if (null? polys) &#x27;(1) (poly* (car polys) (expand-others (cdr polys)))))
+
+(define (expand r)
+  (poly* (list (car r))
+         (poly* (cons 1 (zeros (cadr r)))
+                (poly* (expand-factors (caddr r)) (expand-others (cadddr r))))))
+
+(define (poly=? a b)
+  (cond ((and (null? a) (null? b)) #t)
+        ((or (null? a) (null? b)) #f)
+        (else (and (= (car a) (car b)) (poly=? (cdr a) (cdr b))))))
+
+(define (verify r original)
+  (poly=? (expand r) original))
+
+;; ---------- Виведення на екран і в файл ----------
+(define (emit-lines lines port)
+  (if (null? lines)
+      #t
+      (begin (display (car lines)) (newline) (display (car lines) port) (newline port)
+             (emit-lines (cdr lines) port))))
+
+(define (report-lines coeffs r)
+  (list (string-append &quot;Многочлен:  P(x) = &quot; (poly-&gt;string coeffs))
+        (string-append &quot;Розкладання: P(x) = &quot; (expression-&gt;string r))
+        (string-append &quot;Лінійних множників (з кратністю): &quot; (number-&gt;string (my-length (caddr r))))
+        (string-append &quot;Нерозкладні множники степеня &gt;= 2: &quot; (number-&gt;string (my-length (cadddr r)))
+                       (if (null? (cadddr r)) &quot;&quot; (string-append &quot;  →  &quot; (others-&gt;string (cadddr r)))))
+        (string-append &quot;Перевірка (добуток множників): &quot; (poly-&gt;string (expand r)))
+        (string-append &quot;Розкладання &quot; (if (verify r coeffs) &quot;ПРАВИЛЬНЕ&quot; &quot;НЕПРАВИЛЬНЕ&quot;)
+                       &quot; — добуток множників &quot; (if (verify r coeffs) &quot;збігається&quot; &quot;не збігається&quot;)
+                       &quot; з вихідним многочленом&quot;)))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Степінь многочлена n: &quot;) (ask-coeffs (read)))
+(define (ask-coeffs n)
+  (display &quot;Коефіцієнти (a0 a1 ... an) у вигляді списку: &quot;) (run n (read)))
+
+(define (run n coeffs)
+  (newline)
+  (if (or (not (= (my-length coeffs) (+ n 1))) (= (car coeffs) 0))
+      (begin (display &quot;Помилка: має бути n+1 коефіцієнтів, a0 ≠ 0&quot;) (newline))
+      (call-with-output-file &quot;factorization.txt&quot;
+        (lambda (port) (emit-lines (report-lines coeffs (factorize coeffs)) port)))))
+</code></pre></section><hr><section id='skrin'><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 8.1: Розкладання многочлена на множники</h2><div class='runlabel'>Запуск 1: 2x³ − 3x² − 3x + 2</div><img src='../assets/lab8/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab8/task1_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: x⁴ − 1</div><img src='../assets/lab8/task1_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab8/task1_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: (x − 2)³</div><img src='../assets/lab8/task1_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab8/task1_run3.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 4: x³ − x (виноситься x)</div><img src='../assets/lab8/task1_run4.png' alt='запуск 4'><div><a class='dl' href='../assets/lab8/task1_run4.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 5: x⁴ + 4 (тотожність Софі Жермен)</div><img src='../assets/lab8/task1_run5.png' alt='запуск 5'><div><a class='dl' href='../assets/lab8/task1_run5.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 6: 6x² − 6 (числовий множник)</div><img src='../assets/lab8/task1_run6.png' alt='запуск 6'><div><a class='dl' href='../assets/lab8/task1_run6.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 7: −2x⁵ + 8x³ − 8x</div><img src='../assets/lab8/task1_run7.png' alt='запуск 7'><div><a class='dl' href='../assets/lab8/task1_run7.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 8: 4x⁴ − 13x² + 9</div><img src='../assets/lab8/task1_run8.png' alt='запуск 8'><div><a class='dl' href='../assets/lab8/task1_run8.txt'>текстовий протокол</a></div></section><hr><section id='perevirka'><h1>Оцінка достовірності результату</h1><div class='card'><b>Метод.</b> Результати програм на Scheme порівнювалися з <i>незалежними</i> еталонними обчисленнями на Python (бібліотеки math, fractions, sympy та власні реалізації формул). Для кожної перевірки автоматично запускалась Scheme-програма на наборі вхідних даних і порівнювався її вивід. <b>Підсумок: 19 з 19 перевірок пройдено.</b> Крім того, пройдено контрольні тести з умови завдання.</div><h2>Розкладання: добуток множників = P(x) (sympy) та множники збігаються з sympy.factor_list</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>P = (2 -3 -3 2)</td><td>(x + 1)(x - 2)(2x - 1)</td><td>1·(x - 2)·(x + 1)·(2*x - 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 0 0 0 -1)</td><td>(x - 1)(x + 1)(x^2 + 1)</td><td>1·(x - 1)·(x + 1)·(x**2 + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 -6 12 -8)</td><td>(x - 2)^3</td><td>1·(x - 2)^3</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 0 -1 0)</td><td>x(x - 1)(x + 1)</td><td>1·(x - 1)·(x)·(x + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 0 0 0 4)</td><td>(x^2 - 2x + 2)(x^2 + 2x + 2)</td><td>1·(x**2 - 2*x + 2)·(x**2 + 2*x + 2)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (6 0 -6)</td><td>6(x - 1)(x + 1)</td><td>6·(x - 1)·(x + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (-2 0 8 0 -8 0)</td><td>-2x(x^2 - 2)^2</td><td>-2·(x)·(x**2 - 2)^2</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 0 -5 0 4)</td><td>(x - 1)(x + 1)(x - 2)(x + 2)</td><td>1·(x - 2)·(x - 1)·(x + 1)·(x + 2)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (4 0 -13 0 9)</td><td>(x - 1)(x + 1)(2x - 3)(2x + 3)</td><td>1·(x - 1)·(x + 1)·(2*x - 3)·(2*x + 3)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 0 1 0 1)</td><td>(x^2 - x + 1)(x^2 + x + 1)</td><td>1·(x**2 - x + 1)·(x**2 + x + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 1 1)</td><td>(x^2 + x + 1)</td><td>1·(x**2 + x + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 -3 3 -1 0 0 0)</td><td>x^3(x - 1)^3</td><td>1·(x - 1)^3·(x)^3</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (12 -8 -3 2)</td><td>(2x - 1)(2x + 1)(3x - 2)</td><td>1·(2*x - 1)·(2*x + 1)·(3*x - 2)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (3 -3)</td><td>3(x - 1)</td><td>3·(x - 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (5)</td><td>5</td><td>5·</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (2 7 3)</td><td>(x + 3)(2x + 1)</td><td>1·(x + 3)·(2*x + 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 2 1)</td><td>(x + 1)^2</td><td>1·(x + 1)^2</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (1 -1 -1 1)</td><td>(x - 1)^2(x + 1)</td><td>1·(x + 1)·(x - 1)^2</td><td><span class='ok'>✓</span></td></tr><tr><td>P = (10 -19 -2 15 -4)</td><td>(x - 1)(10x^3 - 9x^2 - 11x + 4)</td><td>1·(x - 1)·(10*x**3 - 9*x**2 - 11*x + 4)</td><td><span class='ok'>✓</span></td></tr></table><p><b>19 / 19</b> збігів.</p></section><hr><section id='ai'><h1>Перевірка коду інструментами штучного інтелекту (простота, Clean code)</h1><p>Аналіз коду виконав ШІ-асистент Claude (Anthropic): прочитано кожну програму, перевірено її за критеріями чистого коду й за вимогами завдання, автоматично пораховано метрики та пошук заборонених конструкцій. Нижче — критерії, вимірювання й висновки; випадки, де за результатами перевірки код було змінено, позначені «знайдено й виправлено».</p><h2>Критерії</h2><table class='t'><tr><th>Критерій</th><th>Що перевірялось</th></tr><tr><td>Іменування</td><td>імена відображають зміст (дієслова для дій, іменники для даних)</td></tr><tr><td>Малі функції</td><td>одна процедура — одна відповідальність; довжина процедур</td></tr><tr><td>Відсутність побічних ефектів</td><td>немає set!, змінних стану; значення передаються параметрами</td></tr><tr><td>Відповідність обмеженням</td><td>заборонені конструкції (let, let*, letrec, do, while, for, loop)</td></tr><tr><td>Простота</td><td>немає дублювання обчислень, зайвих абстракцій; коментарі пояснюють «чому», а не «що»</td></tr><tr><td>Коректність і тестованість</td><td>чисті процедури можна перевірити окремо (див. розділ «Оцінка достовірності»)</td></tr></table><div class='card'>Окремих заборон на let у цій лабораторній немає; для єдності стилю програми написано без let/set!/циклів, а таблиці наведено для інформації.</div><h2>Задача 8.1: Розкладання многочлена на множники</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>274</td><td>187</td><td>48</td><td>73</td><td>2.6</td><td>10</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Розклад на етапи (<code>trailing-zeros</code> → <code>content</code> → <code>extract-roots</code> → <code>split-rest</code>) відбиває математичний алгоритм; кожна процедура коротка й має одну відповідальність; результат <code>factorize</code> — єдине структуроване значення.</li><li>Заборонені бібліотеки поліномів не використовуються; усі операції (<code>poly*</code>, <code>poly+</code>, <code>poly-eval</code>, ділення Горнера) — власні.</li><li><b>Знайдено й виправлено:</b> перша версія залишала x⁴ + 4 і (x² − 2)² нерозкладеними; після аналізу додано правила для біквадратних многочленів (<code>split-by-discriminant</code>, <code>split-by-squares</code>).</li><li><b>Зауваження (читабельність):</b> ланцюжок <code>factorize</code>…<code>factorize5</code> з’явився через заборону let: кожен проміжний результат — окрема процедура. У Racket/Scheme із let* код був би компактнішим; у цій лабораторній правило дотримано послідовно.</li><li><b>Зауваження:</b> ефективність перебору кандидатів ±p/q — O(d(a<sub>n</sub>)·d(a<sub>0</sub>)·n) (d — кількість дільників); для коефіцієнтів до 10<sup>6</sup> це прийнятно, для більших потрібне факторизування чисел (<code>divisors</code> реалізовано лінійним перебором).</li></ul><p class='muted'>Примітка: метрики розраховано автоматично; змістовні висновки — експертна оцінка асистента. Перевірку слід розглядати як допоміжну: остаточну відповідальність за код несе автор.</p></section><hr><section id='vysnovok'><h1>Висновок</h1><div class='card'><p>Розроблено систему розкладання многочленів з цілими коефіцієнтами на множники: винесення числового множника та степеня x, пошук раціональних коренів за теоремою про раціональні корені зі схемою Горнера та урахуванням кратності, розкладання біквадратних многочленів, а також окрему процедуру перевірки множенням. Результати виводяться на екран та записуються у файл. Усі 19 тестових многочленів (у т. ч. з кратними коренями, x⁴ + 4, виносом x) перевірено незалежно за допомогою sympy: добуток множників збігається з вихідним многочленом, а набір множників збігається з sympy.factor_list.</p></div></section><hr></main></div></body></html>

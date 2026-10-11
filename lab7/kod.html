@@ -1,0 +1,252 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР7: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 7</h2><div class="sub">Обробка рядків та файлів мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 7.1: Текстові файли: заміна слова</h2><a class='dl' href='../assets/lab7/task1.scm' download>⬇ task1_text_files.scm</a><pre><code>;; =====================================================================
+;; ЛР7, варіант 3, задача 3.1. Робота з текстовими файлами.
+;;  1) Програма генерує n рядків тексту й записує їх у файл text_input.txt;
+;;  2) рядки зчитуються з файлу та виводяться на екран;
+;;  3) у кожному реченні всі входження заданого слова замінюються на нове слово;
+;;  4) результат записується в новий файл text_output.txt.
+;; Слово — максимальна послідовність літер (знаки пунктуації та пробіли його не входять),
+;; порівняння слів не залежить від регістру. Використано стандартні R5RS-процедури
+;; введення-виведення: call-with-output-file, call-with-input-file, read-char, display.
+;; Мова: R5RS (Dr.Racket / Guile). Без let / set! / циклів.
+;; =====================================================================
+
+;; ---------- Генерація тексту ----------
+(define subjects &#x27;(&quot;Студент&quot; &quot;Програміст&quot; &quot;Викладач&quot; &quot;Дослідник&quot; &quot;Інженер&quot;))
+(define verbs    &#x27;(&quot;вивчає&quot; &quot;описує&quot; &quot;перевіряє&quot; &quot;використовує&quot; &quot;створює&quot;))
+(define objects  &#x27;(&quot;функціональне програмування&quot; &quot;рекурсивні процедури&quot; &quot;списки та вектори&quot;
+                   &quot;символьні обчислення&quot; &quot;чисельні методи&quot;))
+(define endings  &#x27;(&quot;щодня&quot; &quot;з цікавістю&quot; &quot;у лабораторії&quot; &quot;разом із командою&quot; &quot;вдома&quot;))
+
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (pick lst seed) (list-ref lst (remainder (quotient seed 65536) (length lst))))
+
+;; Один рядок: «Підмет дієслово додаток закінчення.»
+;; Кожен компонент вибирається зі свого списку наступним значенням генератора.
+(define (make-line seed)
+  (string-append (pick subjects (next-seed seed)) &quot; &quot;
+                 (pick verbs (next-seed (next-seed seed))) &quot; &quot;
+                 (pick objects (next-seed (next-seed (next-seed seed)))) &quot; &quot;
+                 (pick endings (next-seed (next-seed (next-seed (next-seed seed))))) &quot;.&quot;))
+
+;; Список із n рядків
+(define (make-lines n seed)
+  (if (= n 0)
+      &#x27;()
+      (cons (make-line seed) (make-lines (- n 1) (next-seed (next-seed (next-seed (next-seed (next-seed seed)))))))))
+
+;; ---------- Запис рядків у файл ----------
+(define (write-lines lines port)
+  (if (null? lines)
+      #t
+      (begin (display (car lines) port) (newline port) (write-lines (cdr lines) port))))
+
+(define (save-lines lines filename)
+  (call-with-output-file filename (lambda (port) (write-lines lines port))))
+
+;; ---------- Читання рядків із файлу ----------
+;; Повертає список рядків; рядок накопичується як зворотний список символів
+(define (read-lines port)
+  (read-lines-from port (read-char port) &#x27;() &#x27;()))
+
+(define (read-lines-from port c current acc)
+  (cond ((eof-object? c)
+         (reverse (if (null? current) acc (cons (list-&gt;string (reverse current)) acc))))
+        ((char=? c #\newline)
+         (read-lines-from port (read-char port) &#x27;() (cons (list-&gt;string (reverse current)) acc)))
+        (else (read-lines-from port (read-char port) (cons c current) acc))))
+
+(define (load-lines filename)
+  (call-with-input-file filename read-lines))
+
+;; ---------- Заміна слова ----------
+;; replace-in-chars проходить по символах рядка: літери накопичуються у слові word;
+;; на першому нелітерному символі слово порівнюється із цільовим і дописується в результат.
+(define (same-word? chars target)
+  (string=? (string-downcase (list-&gt;string chars)) (string-downcase target)))
+
+(define (flush-word word target replacement out)
+  ;; word і out — зворотні списки символів; повертає новий out
+  (cond ((null? word) out)
+        ((same-word? (reverse word) target) (append (reverse (string-&gt;list replacement)) out))
+        (else (append word out))))
+
+(define (replace-in-chars chars target replacement word out)
+  (cond ((null? chars) (reverse (flush-word word target replacement out)))
+        ((char-alphabetic? (car chars))
+         (replace-in-chars (cdr chars) target replacement (cons (car chars) word) out))
+        (else
+         (replace-in-chars (cdr chars) target replacement &#x27;()
+                           (cons (car chars) (flush-word word target replacement out))))))
+
+(define (replace-word line target replacement)
+  (list-&gt;string (replace-in-chars (string-&gt;list line) target replacement &#x27;() &#x27;())))
+
+(define (replace-all lines target replacement)
+  (if (null? lines)
+      &#x27;()
+      (cons (replace-word (car lines) target replacement)
+            (replace-all (cdr lines) target replacement))))
+
+;; ---------- Виведення на екран ----------
+(define (print-lines lines i)
+  (if (null? lines)
+      #t
+      (begin (display &quot;  &quot;) (display i) (display &quot;. &quot;) (display (car lines)) (newline)
+             (print-lines (cdr lines) (+ i 1)))))
+
+;; ---------- Інтерфейс ----------
+(define input-file &quot;text_input.txt&quot;)
+(define output-file &quot;text_output.txt&quot;)
+
+(define (main)
+  (display &quot;Кількість рядків n: &quot;) (ask-seed (read)))
+(define (ask-seed n)
+  (display &quot;Початкове число генератора: &quot;) (ask-word n (read)))
+(define (ask-word n seed)
+  (display &quot;Слово, яке потрібно замінити (у лапках): &quot;) (ask-new n seed (read)))
+(define (ask-new n seed old)
+  (display &quot;Нове слово (у лапках): &quot;) (run n seed old (read)))
+
+(define (run n seed old new)
+  (newline)
+  (save-lines (make-lines n seed) input-file)
+  (display &quot;Файл &quot;) (display input-file) (display &quot; записано.&quot;) (newline)
+  (display &quot;Прочитано з файлу:&quot;) (newline)
+  (process (load-lines input-file) old new))
+
+(define (process lines old new)
+  (print-lines lines 1)
+  (newline)
+  (display &quot;Заміна слова «&quot;) (display old) (display &quot;» на «&quot;) (display new) (display &quot;»:&quot;) (newline)
+  (finish (replace-all lines old new)))
+
+(define (finish result)
+  (print-lines result 1)
+  (save-lines result output-file)
+  (newline)
+  (display &quot;Результат записано у файл &quot;) (display output-file) (newline)
+  (display &quot;Перевірка: файл містить &quot;) (display (length (load-lines output-file))) (display &quot; рядків.&quot;) (newline))
+</code></pre><h2>Задача 7.2: Тональність тексту</h2><a class='dl' href='../assets/lab7/task2.scm' download>⬇ task2_sentiment.scm</a><pre><code>;; =====================================================================
+;; ЛР7, варіант 3, задача 3.2*. Тональність (емоційне забарвлення) тексту.
+;; Етапи:
+;;  1) зчитування файлу в список рядків;
+;;  2) токенізація (поділ на слова) і нормалізація (нижній регістр, пунктуація відкидається);
+;;  3) видалення стоп-слів стандартною функцією filter;
+;;  4) словник емоцій (слова з вагами);
+;;  5) оцінка кожного слова з урахуванням підсилювачів («дуже», «надзвичайно», «сильно», «вкрай»)
+;;     та заперечень («не», «ні»), накопичення балів і лічильника емоційних слів;
+;;  6) нормалізація: тональність = сума балів / кількість емоційних слів;
+;;  7) інтерпретація за порогами: &gt; 0.2 — позитивний, &lt; -0.2 — негативний, інакше нейтральний.
+;; Мова: Racket або Guile (потрібна стандартна filter). Без let / set! / циклів.
+;; =====================================================================
+
+;; ---------- 1. Читання файлу ----------
+(define (read-lines port)
+  (read-lines-from port (read-char port) &#x27;() &#x27;()))
+(define (read-lines-from port c current acc)
+  (cond ((eof-object? c)
+         (reverse (if (null? current) acc (cons (list-&gt;string (reverse current)) acc))))
+        ((char=? c #\newline)
+         (read-lines-from port (read-char port) &#x27;() (cons (list-&gt;string (reverse current)) acc)))
+        (else (read-lines-from port (read-char port) (cons c current) acc))))
+(define (load-lines filename)
+  (call-with-input-file filename read-lines))
+
+;; ---------- 2. Токенізація і нормалізація ----------
+;; Рядок → список слів (літери переводяться у нижній регістр, усе інше — роздільник)
+(define (tokenize-chars chars word out)
+  (cond ((null? chars) (reverse (flush word out)))
+        ((char-alphabetic? (car chars))
+         (tokenize-chars (cdr chars) (cons (char-downcase (car chars)) word) out))
+        (else (tokenize-chars (cdr chars) &#x27;() (flush word out)))))
+(define (flush word out)
+  (if (null? word) out (cons (list-&gt;string (reverse word)) out)))
+(define (tokenize line) (tokenize-chars (string-&gt;list line) &#x27;() &#x27;()))
+
+;; Список рядків → єдиний список слів
+(define (tokenize-lines lines)
+  (if (null? lines) &#x27;() (append (tokenize (car lines)) (tokenize-lines (cdr lines)))))
+
+;; ---------- 3. Стоп-слова ----------
+;; Слова «не», «ні», «дуже» тощо навмисно НЕ є стоп-словами — вони потрібні для оцінки.
+(define stop-words
+  &#x27;(&quot;і&quot; &quot;й&quot; &quot;та&quot; &quot;в&quot; &quot;у&quot; &quot;на&quot; &quot;з&quot; &quot;із&quot; &quot;до&quot; &quot;що&quot; &quot;це&quot; &quot;як&quot; &quot;але&quot; &quot;проте&quot; &quot;я&quot; &quot;ми&quot; &quot;ви&quot;
+    &quot;він&quot; &quot;вона&quot; &quot;воно&quot; &quot;вони&quot; &quot;то&quot; &quot;же&quot; &quot;ж&quot; &quot;а&quot; &quot;б&quot; &quot;би&quot; &quot;ось&quot; &quot;такі&quot; &quot;такий&quot; &quot;просто&quot;))
+
+(define (remove-stop-words words)
+  (filter (lambda (w) (not (member w stop-words))) words))
+
+;; ---------- 4. Словники ----------
+(define emotion-dictionary
+  &#x27;((&quot;гарний&quot; . 1) (&quot;чудовий&quot; . 2) (&quot;чудова&quot; . 2) (&quot;цікавий&quot; . 1) (&quot;приємна&quot; . 1) (&quot;люблю&quot; . 1)
+    (&quot;радий&quot; . 1) (&quot;прекрасний&quot; . 2) (&quot;добрий&quot; . 1) (&quot;чудові&quot; . 2) (&quot;цікава&quot; . 1)
+    (&quot;поганий&quot; . -1) (&quot;жахливий&quot; . -2) (&quot;жахлива&quot; . -2) (&quot;нудний&quot; . -1) (&quot;слабкі&quot; . -1)
+    (&quot;розчарований&quot; . -2) (&quot;погана&quot; . -1) (&quot;нудна&quot; . -1) (&quot;жахливі&quot; . -2)))
+
+(define amplifiers &#x27;((&quot;дуже&quot; . 1.5) (&quot;надзвичайно&quot; . 2) (&quot;сильно&quot; . 1.5) (&quot;вкрай&quot; . 2)))
+(define negations &#x27;(&quot;не&quot; &quot;ні&quot;))
+
+;; Пошук у асоціативному списку: значення або #f
+(define (lookup word table)
+  (cond ((null? table) #f)
+        ((string=? word (car (car table))) (cdr (car table)))
+        (else (lookup word (cdr table)))))
+
+;; ---------- 5. Оцінка слів ----------
+;; Стан: mult — множник від підсилювачів, neg — -1 після заперечення (інакше 1),
+;;       total — сума балів, count — кількість емоційних слів.
+;; Підсилювач/заперечення діють на найближче наступне емоційне слово; будь-яке інше слово
+;; скидає їх. Результат: список (total count).
+(define (score-words words mult neg total count)
+  (cond ((null? words) (list total count))
+        ((lookup (car words) amplifiers)
+         (score-words (cdr words) (* mult (lookup (car words) amplifiers)) neg total count))
+        ((member (car words) negations)
+         (score-words (cdr words) mult (* neg -1) total count))
+        ((lookup (car words) emotion-dictionary)
+         (score-words (cdr words) 1 1
+                      (+ total (* mult neg (lookup (car words) emotion-dictionary)))
+                      (+ count 1)))
+        (else (score-words (cdr words) 1 1 total count))))
+
+;; ---------- 6. Нормалізація ----------
+(define (normalized-score r)
+  (if (= (cadr r) 0) 0 (/ (car r) (cadr r))))
+
+;; ---------- 7. Інтерпретація ----------
+(define (classify score)
+  (cond ((&gt; score 0.2) &quot;позитивний&quot;)
+        ((&lt; score -0.2) &quot;негативний&quot;)
+        (else &quot;нейтральний&quot;)))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Ім&#x27;я текстового файлу (у лапках): &quot;)
+  (run (read)))
+
+(define (run filename)
+  (newline)
+  (analyse (load-lines filename)))
+
+(define (analyse lines)
+  (display &quot;Прочитано рядків: &quot;) (display (length lines)) (newline)
+  (analyse2 (remove-stop-words (tokenize-lines lines))))
+
+(define (analyse2 words)
+  (display &quot;Слів після видалення стоп-слів: &quot;) (display (length words)) (newline)
+  (display &quot;Слова: &quot;) (display words) (newline)
+  (analyse3 (score-words words 1 1 0 0)))
+
+(define (analyse3 r)
+  (display &quot;Сума балів: &quot;) (display (car r)) (newline)
+  (display &quot;Емоційних слів: &quot;) (display (cadr r)) (newline)
+  (analyse4 (normalized-score r)))
+
+(define (analyse4 score)
+  (display &quot;Нормалізована тональність: &quot;) (display score) (newline)
+  (display &quot;Категорія: &quot;) (display (classify score)) (newline))
+</code></pre></main></div></body></html>

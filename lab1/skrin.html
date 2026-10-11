@@ -1,0 +1,21 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР1: Скріншот роботи та результату — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 1</h2><div class="sub">Використання рекурсії для організації повторювальних процесів<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="cur">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 1.1: Функція Аккермана</h2><div class='runlabel'>Запуск 1: Контрольний тест A(2, 2) = 7</div><img src='../assets/lab1/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab1/task1_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: A(3, 6) = 509</div><img src='../assets/lab1/task1_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab1/task1_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Порівняння часу виконання на великих значеннях</div><pre><code>A(2, 300)  результат = 603
+   звичайна рекурсія:  час (мс) = 1.2781500000000001
+   хвостова рекурсія:  час (мс) = 1.3787499999999997
+   ітеративний процес: час (мс) = 9.999999999976694e-5
+A(3, 6)  результат = 509
+   звичайна рекурсія:  час (мс) = 1.152666666666671
+   хвостова рекурсія:  час (мс) = 1.301666666666667
+   ітеративний процес: час (мс) = 3.33333333330188e-4
+A(3, 8)  результат = 2045
+   звичайна рекурсія:  час (мс) = 19.400000000000006
+   хвостова рекурсія:  час (мс) = 21.013999999999996
+   ітеративний процес: час (мс) = 0.001999999999995339
+A(4, 1)  результат = 65533
+   звичайна рекурсія:  час (мс) = 21404.422000000002
+   хвостова рекурсія:  час (мс) = 19162.711000000003
+   ітеративний процес: час (мс) = 18984.344000000005
+</code></pre><h2>Задача 1.2: Прості дільники числа</h2><div class='runlabel'>Запуск 1: Контрольний тест: n = 18 → 2 3 3</div><img src='../assets/lab1/task2_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab1/task2_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: n = 84 → 2 2 3 7</div><img src='../assets/lab1/task2_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab1/task2_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: Просте число n = 97</div><img src='../assets/lab1/task2_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab1/task2_run3.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 4: Велике число n = 600851475143</div><img src='../assets/lab1/task2_run4.png' alt='запуск 4'><div><a class='dl' href='../assets/lab1/task2_run4.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 5: Некоректне n = 1</div><img src='../assets/lab1/task2_run5.png' alt='запуск 5'><div><a class='dl' href='../assets/lab1/task2_run5.txt'>текстовий протокол</a></div></main></div></body></html>

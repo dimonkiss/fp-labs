@@ -1,0 +1,206 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР6: Весь звіт — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 6</h2><div class="sub">Обробка структур типу векторів і матриць, стеків та черг мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><section id='titul'><div class="title"><div>КИЇВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ТАРАСА ШЕВЧЕНКА</div><div>ФАКУЛЬТЕТ ІНФОРМАЦІЙНИХ ТЕХНОЛОГІЙ</div>
+<div>Кафедра програмних систем і технологій</div><div class="big">ЗВІТ</div><div style="font-size:20px">з лабораторної роботи № 6</div>
+<div style="font-size:20px">з дисципліни «Функціональне програмування»</div><h1 style="margin-top:30px">Обробка структур типу векторів і матриць, стеків та черг мовами функціонального програмування</h1><p>Варіант 3</p>
+<div class="meta"><p><b>Виконав:</b> студент групи ІПЗ-41 Кісіль Д. Р.</p><p><b>Перевірив:</b> ______________________</p></div><p style="margin-top:60px">Київ — 2026</p></div></section><hr><section id='meta'><h1>Мета роботи</h1><div class='card'>Опанувати теоретичні основи обробки структур типу векторів і матриць, стеків та черг мовами функціонального програмування та розробити програми їх реалізації</div><p class='muted'>Мета подана за методичними вказівками до лабораторних занять з дисципліни «Функціональне програмування» (Київ, 2025).</p></section><hr><section id='umova'><h1>Умова завдання</h1><p><b>Варіант 3.</b> Умова наведена з методичних вказівок.</p><div class='card'><b>Вимоги до коду:</b> Обробляти вектори з індексацією та прямим доступом; для всіх задач можна використовувати стандартні vector, vector-ref, vector-length, vector-set!, for, map. Черги — за правилом FIFO, стеки — LIFO; бібліотеки обробки черг і стеків не використовувати.</div><h2>Задача 6.1</h2>
+<p><b>3.1</b> Генерувати елементи двох векторів псевдовипадковими цілими числами. Знайти найменший серед тих елементів першого вектору, які співпадають із значеннями елементів другого вектору. Вивести на екран вектори, найменший елемент та його індекс.</p><h2>Задача 6.2</h2>
+<p><b>3.2</b> Реалізувати чергу символів із демонстрацією принципу FIFO (First In, First Out);</p>
+<ul><li>користувач послідовно вводить символи з клавіатури. Після кожного введення виводити поточний стан черги, показуючи, що новий символ додається в її кінець;</li>
+<li>при обробці вихідної черги вибирати і аналізувати символи з голови черги. Якщо символ є англійською літерою, додавати його в нову чергу. Якщо символ не є англійською літерою — пропускати його. Після кожної операції вилучення символу з вихідної черги та додавання його в нову чергу показувати, який символ було вилучено, поточний стан вихідної та нової черги;</li>
+<li>після завершення обробки вихідної черги вивести фінальний вміст обох черг, демонструючи принцип FIFO;</li>
+<li>перетворити нову чергу з англійськими літерами у список, відсортувавши його за алфавітом.</li></ul></section><hr><section id='analiz'><h1>Аналіз задачі та математичне забезпечення</h1><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2>
+<h3>Генератор псевдовипадкових чисел</h3>
+<p>Власний лінійний конгруентний генератор: s<sub>k+1</sub> = (a·s<sub>k</sub> + c) mod m, a = 1 103 515 245, c = 12 345, m = 2<sup>31</sup>. Елемент вектора: x<sub>k</sub> = ((s<sub>k</sub> div 65536) mod M) + 1 ∈ [1; M]. Старші біти використовуються тому, що молодші біти ЛКГ мають короткий період. Початкове число seed задається користувачем, тому прогін відтворюваний; другий вектор будується із seed + 1.</p>
+<h3>Алгоритм пошуку</h3>
+<p>Для кожного елемента v1[i] перевіряється належність до другого вектора (<code>vector-member?</code>, лінійний пошук за індексом); серед збігів зберігається мінімальне значення та індекс його першого входження. Один прохід по першому вектору: O(n₁·n₂). Рекурсія — хвостова за індексом i із акумуляторами <code>best</code> і <code>best-i</code>; якщо збігів немає, повертається #f і виводиться повідомлення.</p>
+<p>Індексація — з нуля, як у <code>vector-ref</code>. Вектори створюються функціонально: <code>(list-&gt;vector (rand-list …))</code>, без змін елементів на місці.</p><h2>Задача 6.2: Черга символів (FIFO)</h2>
+<h3>Абстракція «черга»</h3>
+<p>Чергу подано списком, голова — перший елемент. Операції: <code>make-queue</code>, <code>queue-empty?</code>, <code>queue-head</code>, <code>dequeue</code> (cdr) та <code>enqueue</code> (додавання в кінець). Принцип FIFO: елемент, що ввели першим, обробляється першим — це видно з протоколу вилучень (<code>queue-head</code> завжди повертає найстаріший елемент).</p>
+<h3>Три етапи</h3>
+<ol><li><b>Введення:</b> символи вводяться по одному (кожен у рядку; порожній рядок — завершення); після кожного введення друкується стан черги. Процедура <code>read-symbol</code> читає перший символ рядка та пропускає решту.</li>
+<li><b>Обробка:</b> <code>process</code> бере голову вихідної черги: англійська літера (A–Z, a–z) додається в нову чергу, інші символи пропускаються. Після кожної операції друкуються вилучений символ і стани обох черг. Рекурсія хвостова за двома чергами.</li>
+<li><b>Сортування:</b> нова черга перетворюється на список і впорядковується вставками за алфавітом без урахування регістру; сортування <b>стабільне</b> (однакові літери зберігають початковий порядок, наприклад A перед a, якщо A була раніше). Складність O(k²).</li></ol>
+<h3>Складність</h3>
+<p>Додавання в кінець списку — O(n), отже введення n символів — O(n²). Для швидкого enqueue використовують пару списків (front, rear) з амортизованою O(1); для лабораторної обрано прозоре подання одним списком.</p></section><hr><section id='hipo'><h1>HIPO-діаграма (схема виклику процедур)</h1><p>Діаграма показує ієрархію викликів процедур (стрілка A → B означає, що A викликає B); блоки з рекурсією виділено. Допоміжні процедури введення даних (<code>ask-…</code>) для наочності опущено.</p><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2><img src='../assets/lab6/task1_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>n₁, n₂, max, seed</td><td>виклик run</td></tr><tr><td><code>random-vector / rand-list</code></td><td>n, seed, max</td><td>вектор псевдовипадкових чисел</td></tr><tr><td><code>next-seed / rand-value</code></td><td>seed</td><td>наступний стан і значення</td></tr><tr><td><code>find-min</code></td><td>v1, v2, i, best, best-i</td><td>(мінімум . індекс) або #f</td></tr><tr><td><code>vector-member?</code></td><td>v, x, i</td><td>чи є x у векторі</td></tr><tr><td><code>report / print-answer</code></td><td>v1, v2</td><td>виведення</td></tr></table><h2>Задача 6.2: Черга символів (FIFO)</h2><img src='../assets/lab6/task2_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>—</td><td>введення, обробка, підсумок</td></tr><tr><td><code>fill-queue / fill-with / read-symbol</code></td><td>черга</td><td>введення символів зі станом черги</td></tr><tr><td><code>process / step</code></td><td>src, dst</td><td>обробка FIFO-черги з виведенням кроків</td></tr><tr><td><code>enqueue / dequeue / queue-head</code></td><td>черга</td><td>операції черги</td></tr><tr><td><code>english-letter?</code></td><td>символ</td><td>чи англійська літера</td></tr><tr><td><code>sort-chars / insert-sorted</code></td><td>список символів</td><td>алфавітне стабільне сортування</td></tr></table></section><hr><section id='kod'><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2><a class='dl' href='../assets/lab6/task1.scm' download>⬇ task1_vectors.scm</a><pre><code>;; =====================================================================
+;; ЛР6, варіант 3, задача 3.1. Два вектори, заповнені псевдовипадковими цілими числами.
+;; Знайти найменший серед елементів ПЕРШОГО вектора, які збігаються зі значеннями
+;; елементів ДРУГОГО вектора. Вивести вектори, знайдений елемент та його індекс
+;; (індекс у першому векторі, відлік з нуля; береться перше входження).
+;; Використано дозволені процедури: vector, vector-ref, vector-length, list-&gt;vector.
+;; Датчик випадкових чисел — власний лінійний конгруентний генератор.
+;; =====================================================================
+
+;; ---------- Псевдовипадкові числа ----------
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (rand-value s max) (+ 1 (remainder (quotient s 65536) max)))   ; 1..max
+
+;; Список із n псевдовипадкових чисел 1..max (seed — початковий стан)
+(define (rand-list n seed max)
+  (if (= n 0)
+      &#x27;()
+      (cons (rand-value (next-seed seed) max)
+            (rand-list (- n 1) (next-seed seed) max))))
+
+(define (random-vector n seed max)
+  (list-&gt;vector (rand-list n seed max)))
+
+;; ---------- Пошук ----------
+;; Чи входить x у вектор v (перевірка індексів від i)
+(define (vector-member? v x i)
+  (cond ((= i (vector-length v)) #f)
+        ((= (vector-ref v i) x) #t)
+        (else (vector-member? v x (+ i 1)))))
+
+;; Перебір першого вектора: best — найменший збіг (або #f), best-i — його індекс
+;; Результат: (значення . індекс) або #f
+(define (find-min v1 v2 i best best-i)
+  (cond ((= i (vector-length v1))
+         (if best (cons best best-i) #f))
+        ((and (vector-member? v2 (vector-ref v1 i) 0)
+              (or (not best) (&lt; (vector-ref v1 i) best)))
+         (find-min v1 v2 (+ i 1) (vector-ref v1 i) i))
+        (else (find-min v1 v2 (+ i 1) best best-i))))
+
+;; ---------- Виведення ----------
+(define (print-vector v) (display v) (newline))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Довжина першого вектора: &quot;) (ask-n2 (read)))
+(define (ask-n2 n1)
+  (display &quot;Довжина другого вектора: &quot;) (ask-max n1 (read)))
+(define (ask-max n1 n2)
+  (display &quot;Максимальне значення елементів: &quot;) (ask-seed n1 n2 (read)))
+(define (ask-seed n1 n2 max)
+  (display &quot;Початкове число генератора (seed): &quot;) (run n1 n2 max (read)))
+
+(define (run n1 n2 max seed)
+  (newline)
+  (report (random-vector n1 seed max) (random-vector n2 (+ seed 1) max)))
+
+(define (report v1 v2)
+  (display &quot;Вектор 1: &quot;) (print-vector v1)
+  (display &quot;Вектор 2: &quot;) (print-vector v2)
+  (print-answer (find-min v1 v2 0 #f 0)))
+
+(define (print-answer r)
+  (if r
+      (begin (display &quot;Найменший елемент першого вектора, що є у другому: &quot;) (display (car r)) (newline)
+             (display &quot;Його індекс у першому векторі: &quot;) (display (cdr r)) (newline))
+      (begin (display &quot;Спільних елементів у векторах немає.&quot;) (newline))))
+</code></pre><h2>Задача 6.2: Черга символів (FIFO)</h2><a class='dl' href='../assets/lab6/task2.scm' download>⬇ task2_queue.scm</a><pre><code>;; =====================================================================
+;; ЛР6, варіант 3, задача 3.2. Черга символів (FIFO).
+;;  1) Користувач вводить символи по одному (кожен — в окремому рядку, порожній рядок —
+;;     кінець введення). Після кожного введення виводиться стан черги: новий символ додається в кінець.
+;;  2) Обробка вихідної черги: символ береться з голови; якщо це англійська літера, він
+;;     додається в нову чергу, інакше пропускається. Після кожної операції показується, який символ
+;;     вилучено, та стан обох черг.
+;;  3) Після обробки виводяться підсумкові черги; нова черга перетворюється на список,
+;;     впорядкований за алфавітом.
+;; Чергу подано списком: голова черги — перший елемент, додавання — в кінець.
+;; Бібліотек обробки черг не використовується.
+;; =====================================================================
+
+;; ---------- Операції черги ----------
+(define (make-queue) &#x27;())
+(define (queue-empty? q) (null? q))
+(define (queue-head q) (car q))
+(define (dequeue q) (cdr q))
+(define (enqueue q x)                       ; додавання в кінець черги
+  (if (null? q) (list x) (cons (car q) (enqueue (cdr q) x))))
+
+;; ---------- Символи ----------
+(define (english-letter? c)
+  (or (and (char&gt;=? c #\a) (char&lt;=? c #\z))
+      (and (char&gt;=? c #\A) (char&lt;=? c #\Z))))
+
+(define (lower c)                           ; нижній регістр для англійських літер
+  (if (and (char&gt;=? c #\A) (char&lt;=? c #\Z))
+      (integer-&gt;char (+ (char-&gt;integer c) 32))
+      c))
+
+;; ---------- Виведення черги ----------
+(define (print-queue q)
+  (display &quot;[&quot;)
+  (print-items q)
+  (display &quot;]&quot;))
+(define (print-items q)
+  (cond ((null? q) #t)
+        ((null? (cdr q)) (print-char (car q)))
+        (else (print-char (car q)) (display &quot;, &quot;) (print-items (cdr q)))))
+(define (print-char c) (display &quot;&#x27;&quot;) (display c) (display &quot;&#x27;&quot;))
+
+;; ---------- Введення ----------
+;; Читає один рядок: повертає перший символ рядка або #f, якщо рядок порожній
+(define (read-symbol)
+  (read-symbol-from (read-char)))
+(define (read-symbol-from c)
+  (if (or (eof-object? c) (char=? c #\newline))
+      #f
+      (begin (skip-line (read-char)) c)))
+(define (skip-line c)
+  (if (or (eof-object? c) (char=? c #\newline))
+      #t
+      (skip-line (read-char))))
+
+;; Заповнення вихідної черги
+(define (fill-queue q)
+  (display &quot;Введіть символ (порожній рядок — завершити): &quot;)
+  (fill-with q (read-symbol)))
+(define (fill-with q c)
+  (if c
+      (begin (display &quot;   додано в кінець черги: &quot;) (print-char c) (display &quot;;  черга: &quot;)
+             (print-queue (enqueue q c)) (newline)
+             (fill-queue (enqueue q c)))
+      q))
+
+;; ---------- Обробка ----------
+(define (process src dst)
+  (if (queue-empty? src)
+      (list src dst)
+      (step (queue-head src) (dequeue src) dst)))
+
+(define (step c src dst)
+  (display &quot;Вилучено з голови: &quot;) (print-char c)
+  (if (english-letter? c)
+      (begin (display &quot; — англійська літера, додається в нову чергу&quot;) (newline)
+             (show-state src (enqueue dst c))
+             (process src (enqueue dst c)))
+      (begin (display &quot; — не англійська літера, пропускається&quot;) (newline)
+             (show-state src dst)
+             (process src dst))))
+
+(define (show-state src dst)
+  (display &quot;   вихідна черга: &quot;) (print-queue src) (newline)
+  (display &quot;   нова черга:    &quot;) (print-queue dst) (newline))
+
+;; ---------- Сортування за алфавітом ----------
+;; «менше або дорівнює» за кодом нижнього регістру: символ ставиться перед рівними — сортування стабільне
+(define (before? a b) (&lt;= (char-&gt;integer (lower a)) (char-&gt;integer (lower b))))
+(define (insert-sorted c sorted)
+  (cond ((null? sorted) (list c))
+        ((before? c (car sorted)) (cons c sorted))
+        (else (cons (car sorted) (insert-sorted c (cdr sorted))))))
+(define (sort-chars lst)
+  (if (null? lst) &#x27;() (insert-sorted (car lst) (sort-chars (cdr lst)))))
+
+;; ---------- Головна процедура ----------
+(define (main)
+  (display &quot;=== Введення символів ===&quot;) (newline)
+  (run-process (fill-queue (make-queue))))
+
+(define (run-process src)
+  (newline)
+  (display &quot;=== Обробка черги ===&quot;) (newline)
+  (final (process src (make-queue))))
+
+(define (final r)
+  (newline)
+  (display &quot;=== Підсумок ===&quot;) (newline)
+  (display &quot;Вихідна черга: &quot;) (print-queue (car r)) (newline)
+  (display &quot;Нова черга (англійські літери): &quot;) (print-queue (cadr r)) (newline)
+  (display &quot;Список, впорядкований за алфавітом: &quot;) (display (sort-chars (cadr r))) (newline))
+</code></pre></section><hr><section id='skrin'><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2><div class='runlabel'>Запуск 1: 10 і 10 елементів, max = 20, seed = 5</div><img src='../assets/lab6/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab6/task1_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: 6 і 6 елементів, max = 100, seed = 3</div><img src='../assets/lab6/task1_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab6/task1_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: Немає спільних елементів</div><img src='../assets/lab6/task1_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab6/task1_run3.txt'>текстовий протокол</a></div><h2>Задача 6.2: Черга символів (FIFO)</h2><div class='runlabel'>Запуск 1: Введення b 7 A ? z (пробіл) c я</div><img src='../assets/lab6/task2_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab6/task2_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: Порожнє введення</div><img src='../assets/lab6/task2_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab6/task2_run2.txt'>текстовий протокол</a></div></section><hr><section id='perevirka'><h1>Оцінка достовірності результату</h1><div class='card'><b>Метод.</b> Результати програм на Scheme порівнювалися з <i>незалежними</i> еталонними обчисленнями на Python (бібліотеки math, fractions, sympy та власні реалізації формул). Для кожної перевірки автоматично запускалась Scheme-програма на наборі вхідних даних і порівнювався її вивід. <b>Підсумок: 10 з 10 перевірок пройдено.</b> Крім того, пройдено контрольні тести з умови завдання.</div><h2>Вектори: генерація, найменший спільний елемент та індекс</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>n1=10, n2=10, max=20, seed=5</td><td>(16 . 0) #(16 18 17 18 14 5 5 8 13 1)</td><td>(16 . 0)</td><td><span class='ok'>✓</span></td></tr><tr><td>n1=6, n2=6, max=100, seed=3</td><td>(8 . 1) #(48 8 66 13 23 97)</td><td>(8 . 1)</td><td><span class='ok'>✓</span></td></tr><tr><td>n1=15, n2=12, max=15, seed=8</td><td>(1 . 8) #(5 15 15 14 2 9 7 14 1 5 7 9 3 7 8)</td><td>(1 . 8)</td><td><span class='ok'>✓</span></td></tr><tr><td>n1=5, n2=5, max=1000, seed=11</td><td>#f #(382 505 372 269 673)</td><td>#f</td><td><span class='ok'>✓</span></td></tr><tr><td>n1=20, n2=3, max=30, seed=77</td><td>(2 . 13) #(28 21 20 20 20 30 8 30 16 21 13 7 29 2 20 13 12 10 21 27)</td><td>(2 . 13)</td><td><span class='ok'>✓</span></td></tr><tr><td>n1=1, n2=1, max=1, seed=1</td><td>(1 . 0) #(1)</td><td>(1 . 0)</td><td><span class='ok'>✓</span></td></tr></table><p><b>6 / 6</b> збігів.</p><h2>Сортування символів нової черги за алфавітом (стабільне)</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>bAzc</td><td>A b c z</td><td>A b c z</td><td><span class='ok'>✓</span></td></tr><tr><td>aABb</td><td>a A B b</td><td>a A B b</td><td><span class='ok'>✓</span></td></tr><tr><td>ZyXw</td><td>w X y Z</td><td>w X y Z</td><td><span class='ok'>✓</span></td></tr><tr><td>(порожня)</td><td></td><td></td><td><span class='ok'>✓</span></td></tr></table><p><b>4 / 4</b> збігів.</p></section><hr><section id='ai'><h1>Перевірка коду інструментами штучного інтелекту (простота, Clean code)</h1><p>Аналіз коду виконав ШІ-асистент Claude (Anthropic): прочитано кожну програму, перевірено її за критеріями чистого коду й за вимогами завдання, автоматично пораховано метрики та пошук заборонених конструкцій. Нижче — критерії, вимірювання й висновки; випадки, де за результатами перевірки код було змінено, позначені «знайдено й виправлено».</p><h2>Критерії</h2><table class='t'><tr><th>Критерій</th><th>Що перевірялось</th></tr><tr><td>Іменування</td><td>імена відображають зміст (дієслова для дій, іменники для даних)</td></tr><tr><td>Малі функції</td><td>одна процедура — одна відповідальність; довжина процедур</td></tr><tr><td>Відсутність побічних ефектів</td><td>немає set!, змінних стану; значення передаються параметрами</td></tr><tr><td>Відповідність обмеженням</td><td>заборонені конструкції (let, let*, letrec, do, while, for, loop)</td></tr><tr><td>Простота</td><td>немає дублювання обчислень, зайвих абстракцій; коментарі пояснюють «чому», а не «що»</td></tr><tr><td>Коректність і тестованість</td><td>чисті процедури можна перевірити окремо (див. розділ «Оцінка достовірності»)</td></tr></table><div class='card'>Окремих заборон на let у цій лабораторній немає; для єдності стилю програми написано без let/set!/циклів, а таблиці наведено для інформації.</div><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>68</td><td>41</td><td>16</td><td>14</td><td>2.9</td><td>7</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Генерація, пошук і виведення відокремлені; псевдовипадковий генератор — окрема пара процедур, що спрощує тестування й відтворюваність.</li><li>Вектори не змінюються після створення; використано лише дозволені процедури (<code>vector-ref</code>, <code>vector-length</code>, <code>list-&gt;vector</code>).</li><li><b>Зауваження:</b> <code>vector-member?</code> — лінійний пошук (O(n₂)); для великих векторів доцільно відсортувати другий вектор і використати бінарний пошук або хеш-таблицю.</li></ul><h2>Задача 6.2: Черга символів (FIFO)</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>113</td><td>77</td><td>22</td><td>24</td><td>3.2</td><td>9</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Інтерфейс черги (<code>make-queue</code>, <code>enqueue</code>, <code>dequeue</code>, <code>queue-head</code>) відокремлений від програмної логіки обробки.</li><li><b>Знайдено й виправлено (за результатами автоматичної перевірки):</b> перша версія сортування була нестабільною — рівні за алфавітом символи (A і a) міняли порядок; умова <code>before?</code> змінена на «менше або дорівнює», після чого незалежна перевірка проти Python пройшла.</li><li><b>Зауваження:</b> <code>enqueue</code> копіює список (O(n)); для великих черг потрібне подання «два списки».</li><li>Обробка введення нестандартних символів (кирилиця, пробіл, цифри) перевірена — вони пропускаються без помилок.</li></ul><p class='muted'>Примітка: метрики розраховано автоматично; змістовні висновки — експертна оцінка асистента. Перевірку слід розглядати як допоміжну: остаточну відповідальність за код несе автор.</p></section><hr><section id='vysnovok'><h1>Висновок</h1><div class='card'><p>Реалізовано обробку векторів (генерація псевдовипадкових чисел власним ЛКГ, пошук найменшого спільного елемента та його індексу) і чергу символів із демонстрацією принципу FIFO: введення зі станом після кожної операції, відбір англійських літер у нову чергу та алфавітне стабільне сортування. Показано, що чергу можна подати незмінним списком, а всі стани передавати параметрами. Автоматичні перевірки (10 порівнянь із Python) виявили і допомогли виправити нестабільність сортування; після виправлення всі пройдено.</p></div></section><hr></main></div></body></html>

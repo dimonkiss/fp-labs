@@ -1,0 +1,221 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР4: Весь звіт — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 4</h2><div class="sub">Програмування списків мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><section id='titul'><div class="title"><div>КИЇВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ТАРАСА ШЕВЧЕНКА</div><div>ФАКУЛЬТЕТ ІНФОРМАЦІЙНИХ ТЕХНОЛОГІЙ</div>
+<div>Кафедра програмних систем і технологій</div><div class="big">ЗВІТ</div><div style="font-size:20px">з лабораторної роботи № 4</div>
+<div style="font-size:20px">з дисципліни «Функціональне програмування»</div><h1 style="margin-top:30px">Програмування списків мовами функціонального програмування</h1><p>Варіант 3</p>
+<div class="meta"><p><b>Виконав:</b> студент групи ІПЗ-41 Кісіль Д. Р.</p><p><b>Перевірив:</b> ______________________</p></div><p style="margin-top:60px">Київ — 2026</p></div></section><hr><section id='meta'><h1>Мета роботи</h1><div class='card'>Опанувати теоретичні основи використання списків функціональними мовами та розробити програми обробки списків</div><p class='muted'>Мета подана за методичними вказівками до лабораторних занять з дисципліни «Функціональне програмування» (Київ, 2025).</p></section><hr><section id='umova'><h1>Умова завдання</h1><p><b>Варіант 3.</b> Умова наведена з методичних вказівок.</p><div class='card'><b>Вимоги до коду:</b> Написати процедури, що створюють список, модифікують його, здійснюють пошук та впорядкування значень; процедури, що моделюють бізнес-процеси за допомогою списків.</div><h2>Задача 4.1</h2>
+<p><b>3.1</b> Згенерувати список непарних натуральних чисел (натуральні числа ≥ 1), задавши їх кількість. Вивести створений список. Виконати такі операції:</p>
+<ul><li>додати елементи в кінець списку. Кількість доданих елементів задається;</li><li>інвертувати список із заданої позиції до кінця (до заданої позиції) списку;</li>
+<li>сформувати новий список із елементів, які є квадратами чисел вхідного списку.</li></ul><h2>Задача 4.2</h2>
+<p><b>3.2</b> Написати код, що моделює процес здачі усних іспитів в ЗВО в режимі real time. Студенти, що допущені на іспит, сформовані у список. В процесі проходження іспиту екзаменатор викликає перших двох студентів зі списку, які отримують запитання. Поки один студент спілкується з екзаменатором, другий готує письмову відповідь. Екзаменатор задає по два запитання, відповідь на які мають дати студенти. Після спілкування з двома студентами тривалістю m хвилин, до екзаменатора викликають наступні два студента. Якщо відповіді студентів не зараховуються, то формується новий список студентів на перездачу. Вивести на екран списки студентів, які здали іспит та список тих, кому призначена перездача. Студентів можна ідентифікувати порядковими номерами.</p></section><hr><section id='analiz'><h1>Аналіз задачі та математичне забезпечення</h1><h2>Задача 4.1: Список непарних чисел</h2>
+<h3>Подання даних і операції</h3>
+<p>Список у Scheme — це ланцюжок пар (cons-комірок): (cons 1 (cons 3 '())) = (1 3). Усі операції реалізовані рекурсивно над структурою списку без зміни існуючих комірок (структурна незмінність — старий список залишається коректним).</p>
+<table class="t"><tr><th>Операція</th><th>Процедура</th><th>Ідея</th><th>Складність</th></tr>
+<tr><td>Перші k непарних</td><td><code>odd-list</code>, <code>odds-from</code></td><td>(cons first (odds-from (+ first 2) (− k 1)))</td><td>O(k)</td></tr>
+<tr><td>Додавання m елементів у кінець</td><td><code>add-to-end</code>, <code>my-append</code></td><td>нові значення продовжують послідовність: last + 2, last + 4, …; <code>my-append</code> копіює перший список і прикріплює другий</td><td>O(len + m)</td></tr>
+<tr><td>Інверсія від позиції p до кінця</td><td><code>reverse-from</code></td><td>(перші p − 1 елементів) + reverse(решта) — <code>take</code>, <code>drop</code>, <code>my-reverse</code></td><td>O(len)</td></tr>
+<tr><td>Інверсія від початку до позиції p</td><td><code>reverse-to</code></td><td>reverse(перші p елементів) + (решта)</td><td>O(len)</td></tr>
+<tr><td>Квадрати</td><td><code>squares</code></td><td>відображення f(x) = x²</td><td>O(len)</td></tr></table>
+<p><code>my-reverse</code> — хвостова рекурсія з акумулятором (reverse-acc): елементи по одному «переносяться» на акумулятор, що дає обернений список за O(n) без вкладених викликів. Решта процедур використовують звичайну рекурсію з побудовою результату через <code>cons</code>.</p>
+<h3>Приклад</h3>
+<p>k = 5, m = 3, p = 4: список (1 3 5 7 9) → після додавання (1 3 5 7 9 11 13 15); інверсія від позиції 4: (1 3 5 <b>15 13 11 9 7</b>); інверсія до позиції 4: (<b>7 5 3 1</b> 9 11 13 15); квадрати: (1 9 25 49 81 121 169 225).</p><h2>Задача 4.2: Модель усного іспиту</h2>
+<h3>Модель</h3>
+<p>Чергу студентів подано списком (1 2 … n). Екзаменатор працює з парами: перший студент A відповідає екзаменатору (m/2 хв), тоді як другий B готує письмову відповідь; потім B відповідає (ще m/2 хв) — разом спілкування з парою триває <b>m хвилин</b>. Після цього викликається наступна пара. Якщо студентів непарна кількість, останній відповідає сам (m/2 хв).</p>
+<p>«Реальний час» моделюється годинником <code>clock</code> — кількість хвилин від початку іспиту (початок о 09:00); кожна подія виводиться з міткою часу [ГГ:ХХ]. Затримки реального часу (<code>sleep</code>) у R5RS немає; модель дискретних подій відтворює хронологію та є відтворюваною.</p>
+<h3>Оцінювання</h3>
+<p>Результат відповіді студента — псевдовипадкове число 0…100 (лінійний конгруентний генератор s′ = (s·1103515245 + 12345) mod 2<sup>31</sup>, значення (s′ div 65536) mod 101); початкове число seed вводиться користувачем. Відповідь зараховується при балі ≥ 60; інакше студент потрапляє до <b>списку перездачі</b>. Результати накопичуються у двох списках <code>passed</code> і <code>retake</code>.</p>
+<h3>Рекурсивна схема без змінних стану</h3>
+<p>Усі змінні стани — черга, годинник, списки, зерно генератора — передаються параметрами рекурсивної процедури <code>run-exam</code>; кожна пара обробляється викликом <code>run-pair</code>, який повертає оновлені списки й зерно наступному кроку. Присвоєнь немає. Інваріанти (перевірено тестами): кожен студент потрапляє рівно в один зі списків; час завершення = ⌊n/2⌋·m + (m/2, якщо n непарне).</p></section><hr><section id='hipo'><h1>HIPO-діаграма (схема виклику процедур)</h1><p>Діаграма показує ієрархію викликів процедур (стрілка A → B означає, що A викликає B); блоки з рекурсією виділено. Допоміжні процедури введення даних (<code>ask-…</code>) для наочності опущено.</p><h2>Задача 4.1: Список непарних чисел</h2><img src='../assets/lab4/task1_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>k, m, p</td><td>виклик run</td></tr><tr><td><code>odd-list / odds-from</code></td><td>k</td><td>список перших k непарних</td></tr><tr><td><code>add-to-end</code></td><td>lst, m</td><td>список з m новими елементами в кінці</td></tr><tr><td><code>reverse-from / reverse-to</code></td><td>lst, p</td><td>список з інверсією частини</td></tr><tr><td><code>squares</code></td><td>lst</td><td>список квадратів</td></tr><tr><td><code>my-append, my-reverse, take, drop</code></td><td>списки</td><td>допоміжні операції над списками</td></tr></table><h2>Задача 4.2: Модель усного іспиту</h2><img src='../assets/lab4/task2_hipo.png' alt='HIPO'><table class='t'><tr><th>Процедура</th><th>Вхід (Input)</th><th>Обробка / вихід (Process → Output)</th></tr><tr><td><code>main</code></td><td>n, m, seed</td><td>виклик run</td></tr><tr><td><code>run-exam</code></td><td>queue, m, clock, passed, retake, seed</td><td>(passed retake clock)</td></tr><tr><td><code>run-pair / run-single</code></td><td>студенти, стан</td><td>обробка пари або одного студента</td></tr><tr><td><code>examine / verdict</code></td><td>id, start, dur, seed</td><td>(склав?, нове зерно) з виведенням подій</td></tr><tr><td><code>add-result</code></td><td>склав?, id, passed, retake</td><td>оновлені списки</td></tr><tr><td><code>next-seed / score-of</code></td><td>seed</td><td>псевдовипадкова оцінка 0..100</td></tr></table></section><hr><section id='kod'><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 4.1: Список непарних чисел</h2><a class='dl' href='../assets/lab4/task1.scm' download>⬇ task1_odd_list.scm</a><pre><code>;; =====================================================================
+;; ЛР4, варіант 3, задача 3.1. Робота зі списком непарних натуральних чисел
+;;  - згенерувати список перших k непарних чисел (1, 3, 5, ...) і вивести його;
+;;  - додати в кінець списку m нових елементів (продовження послідовності непарних чисел);
+;;  - інвертувати список із заданої позиції p до кінця; а також від початку до позиції p;
+;;  - сформувати новий список із квадратів чисел вхідного списку.
+;; Усі процедури — рекурсивні, без зміни стану (set!, let не використовуються).
+;; =====================================================================
+
+;; ---------- Базові процедури над списками ----------
+(define (my-length lst)
+  (if (null? lst) 0 (+ 1 (my-length (cdr lst)))))
+
+(define (my-append a b)
+  (if (null? a) b (cons (car a) (my-append (cdr a) b))))
+
+;; Інверсія списку хвостовою рекурсією з акумулятором
+(define (my-reverse lst)
+  (reverse-acc lst &#x27;()))
+(define (reverse-acc lst acc)
+  (if (null? lst) acc (reverse-acc (cdr lst) (cons (car lst) acc))))
+
+;; Перші p елементів і решта (позиції рахуються з 1)
+(define (take lst p)
+  (if (or (= p 0) (null? lst)) &#x27;() (cons (car lst) (take (cdr lst) (- p 1)))))
+(define (drop lst p)
+  (if (or (= p 0) (null? lst)) lst (drop (cdr lst) (- p 1))))
+
+(define (last-element lst)
+  (if (null? (cdr lst)) (car lst) (last-element (cdr lst))))
+
+;; ---------- Генерація ----------
+;; k непарних чисел, починаючи з first (first — непарне)
+(define (odds-from first k)
+  (if (= k 0) &#x27;() (cons first (odds-from (+ first 2) (- k 1)))))
+
+(define (odd-list k) (odds-from 1 k))
+
+;; ---------- Додавання елементів у кінець ----------
+;; Нові елементи продовжують послідовність: після останнього x йдуть x+2, x+4, ...
+(define (add-to-end lst m)
+  (my-append lst (odds-from (if (null? lst) 1 (+ 2 (last-element lst))) m)))
+
+;; ---------- Інверсія частини списку ----------
+;; Від позиції p до кінця: (e1 ... e_(p-1)) + інверсія (e_p ... e_n)
+(define (reverse-from lst p)
+  (my-append (take lst (- p 1)) (my-reverse (drop lst (- p 1)))))
+
+;; Від початку до позиції p: інверсія (e1 ... e_p) + (e_(p+1) ... e_n)
+(define (reverse-to lst p)
+  (my-append (my-reverse (take lst p)) (drop lst p)))
+
+;; ---------- Квадрати ----------
+(define (squares lst)
+  (if (null? lst) &#x27;() (cons (* (car lst) (car lst)) (squares (cdr lst)))))
+
+;; ---------- Інтерфейс ----------
+(define (show label lst)
+  (display label) (display lst) (newline))
+
+(define (main)
+  (display &quot;Кількість непарних чисел k: &quot;) (ask-m (read)))
+(define (ask-m k)
+  (display &quot;Скільки елементів додати в кінець (m): &quot;) (ask-p k (read)))
+(define (ask-p k m)
+  (display &quot;Позиція p для інверсії (1..довжина списку): &quot;) (run k m (read)))
+
+(define (run k m p)
+  (newline)
+  (steps (odd-list k) m p))
+
+(define (steps lst m p)
+  (show &quot;Початковий список:                    &quot; lst)
+  (steps2 (add-to-end lst m) m p))
+(define (steps2 ext m p)
+  (display &quot;Додано елементів: &quot;) (display m) (newline)
+  (show &quot;Список після додавання:               &quot; ext)
+  (display &quot;Позиція p = &quot;) (display p) (newline)
+  (show &quot;Інверсія від позиції p до кінця:      &quot; (reverse-from ext p))
+  (show &quot;Інверсія від початку до позиції p:    &quot; (reverse-to ext p))
+  (show &quot;Новий список — квадрати елементів:    &quot; (squares ext)))
+</code></pre><h2>Задача 4.2: Модель усного іспиту</h2><a class='dl' href='../assets/lab4/task2.scm' download>⬇ task2_exam.scm</a><pre><code>;; =====================================================================
+;; ЛР4, варіант 3, задача 3.2. Модель усного іспиту в режимі «реального часу».
+;; Допущені до іспиту студенти утворюють список (ідентифікатори — порядкові номери).
+;; Екзаменатор викликає перших двох студентів зі списку. Поки перший відповідає
+;; екзаменатору (задаються 2 запитання), другий готує письмову відповідь; потім вони
+;; міняються. Спілкування з парою триває m хвилин, після чого викликаються наступні двоє.
+;; Хто не склав — потрапляє до списку на перездачу.
+;;
+;; Час моделюється змінною clock (хвилини від початку іспиту, початок о 09:00).
+;; Оцінки студентів — псевдовипадкові (лінійний конгруентний генератор), початкове
+;; значення seed вводиться з клавіатури, тому прогін відтворюваний.
+;; Зміна стану не використовується: список, годинник, генератор та результати
+;; передаються параметрами рекурсивної процедури.
+;; =====================================================================
+
+;; ---------- Список студентів: 1, 2, ..., n ----------
+(define (students-from i n)
+  (if (&gt; i n) &#x27;() (cons i (students-from (+ i 1) n))))
+
+;; ---------- Псевдовипадкові числа ----------
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (score-of s) (remainder (quotient s 65536) 101))      ; оцінка 0..100
+(define pass-threshold 60)
+
+;; ---------- Допоміжне ----------
+(define (my-append a b)
+  (if (null? a) b (cons (car a) (my-append (cdr a) b))))
+
+(define (pad2 x) (if (&lt; x 10) (string-append &quot;0&quot; (number-&gt;string x)) (number-&gt;string x)))
+(define (time-&gt;string clock)
+  (string-append (pad2 (+ 9 (quotient clock 60))) &quot;:&quot; (pad2 (remainder clock 60))))
+
+(define (say clock text)
+  (display &quot;[&quot;) (display (time-&gt;string clock)) (display &quot;] &quot;) (display text) (newline))
+
+;; ---------- Відповідь одного студента ----------
+;; Студент відповідає екзаменатору протягом dur хвилин, починаючи з моменту start.
+;; Повертає список (склав?  новий-seed).
+(define (examine id start dur seed)
+  (say start (string-append &quot;Студент №&quot; (number-&gt;string id) &quot; відповідає екзаменатору (2 запитання)&quot;))
+  (verdict id (+ start dur) (score-of (next-seed seed)) (next-seed seed)))
+
+(define (verdict id clock score seed)
+  (say clock (string-append &quot;Студент №&quot; (number-&gt;string id) &quot;: оцінка &quot; (number-&gt;string score)
+                            (if (&gt;= score pass-threshold) &quot; — ЗАРАХОВАНО&quot; &quot; — НЕ ЗАРАХОВАНО&quot;)))
+  (list (&gt;= score pass-threshold) seed))
+
+;; ---------- Внесення результату до списків ----------
+;; Повертає (passed retake) після додавання id до відповідного списку
+(define (add-result passed? id passed retake)
+  (if passed?
+      (list (my-append passed (list id)) retake)
+      (list passed (my-append retake (list id)))))
+
+;; ---------- Основна рекурсія ----------
+;; queue — черга студентів; m — тривалість спілкування з парою (хв); clock — годинник;
+;; passed, retake — накопичені списки; seed — стан генератора.
+(define (run-exam queue m clock passed retake seed)
+  (cond ((null? queue) (list passed retake clock))
+        ((null? (cdr queue)) (run-single (car queue) m clock passed retake seed))
+        (else (run-pair (car queue) (cadr queue) (cddr queue) m clock passed retake seed))))
+
+;; Пара студентів a та b: спершу відповідає a (b готується), потім b
+(define (run-pair a b rest m clock passed retake seed)
+  (say clock (string-append &quot;Екзаменатор викликає студентів №&quot; (number-&gt;string a) &quot; і №&quot; (number-&gt;string b)))
+  (say clock (string-append &quot;Студент №&quot; (number-&gt;string b) &quot; готує письмову відповідь&quot;))
+  (pair-second a b rest m clock passed retake (examine a clock (quotient m 2) seed)))
+
+(define (pair-second a b rest m clock passed retake res-a)
+  (pair-finish a b rest m clock (add-result (car res-a) a passed retake)
+               (examine b (+ clock (quotient m 2)) (quotient m 2) (cadr res-a))))
+
+(define (pair-finish a b rest m clock lists res-b)
+  (say (+ clock m) (string-append &quot;Спілкування з парою (№&quot; (number-&gt;string a) &quot;, №&quot; (number-&gt;string b) &quot;) завершено&quot;))
+  (newline)
+  (next-round rest m (+ clock m) (add-result (car res-b) b (car lists) (cadr lists)) (cadr res-b)))
+
+(define (next-round rest m clock lists seed)
+  (run-exam rest m clock (car lists) (cadr lists) seed))
+
+;; Останній студент без пари (непарна кількість)
+(define (run-single a m clock passed retake seed)
+  (say clock (string-append &quot;Екзаменатор викликає студента №&quot; (number-&gt;string a) &quot; (без пари)&quot;))
+  (single-finish a m clock passed retake (examine a clock (quotient m 2) seed)))
+
+(define (single-finish a m clock passed retake res)
+  (newline)
+  (finish-single-lists (+ clock (quotient m 2)) (add-result (car res) a passed retake)))
+
+(define (finish-single-lists clock lists)
+  (list (car lists) (cadr lists) clock))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Кількість студентів, допущених до іспиту: &quot;) (ask-m (read)))
+(define (ask-m n)
+  (display &quot;Тривалість спілкування з парою m (хв, парне): &quot;) (ask-seed n (read)))
+(define (ask-seed n m)
+  (display &quot;Початкове число генератора (seed): &quot;) (run n m (read)))
+
+(define (run n m seed)
+  (newline)
+  (say 0 &quot;Іспит розпочато&quot;)
+  (newline)
+  (print-result (run-exam (students-from 1 n) m 0 &#x27;() &#x27;() seed)))
+
+(define (print-result r)
+  (display &quot;Іспит завершено о &quot;) (display (time-&gt;string (caddr r))) (newline)
+  (display &quot;Склали іспит:      &quot;) (display (car r)) (newline)
+  (display &quot;Призначена перездача: &quot;) (display (cadr r)) (newline))
+</code></pre></section><hr><section id='skrin'><h1>Скріншот роботи та результату</h1><p class='muted'>Знімки консолі відтворюють роботу програм: запуск виконано в інтерпретаторі Guile 3.0 (R5RS-сумісний); введені користувачем значення виділено зеленим. Для кожного запуску наведено умови та результат.</p><h2>Задача 4.1: Список непарних чисел</h2><div class='runlabel'>Запуск 1: k = 5, додати 3, p = 4</div><img src='../assets/lab4/task1_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab4/task1_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: k = 8, додати 2, p = 10</div><img src='../assets/lab4/task1_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab4/task1_run2.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 3: Крайній випадок k = 1</div><img src='../assets/lab4/task1_run3.png' alt='запуск 3'><div><a class='dl' href='../assets/lab4/task1_run3.txt'>текстовий протокол</a></div><h2>Задача 4.2: Модель усного іспиту</h2><div class='runlabel'>Запуск 1: 7 студентів, m = 10 хв, seed = 42</div><img src='../assets/lab4/task2_run1.png' alt='запуск 1'><div><a class='dl' href='../assets/lab4/task2_run1.txt'>текстовий протокол</a></div><div class='runlabel'>Запуск 2: 4 студенти, m = 20 хв, seed = 7</div><img src='../assets/lab4/task2_run2.png' alt='запуск 2'><div><a class='dl' href='../assets/lab4/task2_run2.txt'>текстовий протокол</a></div></section><hr><section id='perevirka'><h1>Оцінка достовірності результату</h1><div class='card'><b>Метод.</b> Результати програм на Scheme порівнювалися з <i>незалежними</i> еталонними обчисленнями на Python (бібліотеки math, fractions, sympy та власні реалізації формул). Для кожної перевірки автоматично запускалась Scheme-програма на наборі вхідних даних і порівнювався її вивід. <b>Підсумок: 12 з 12 перевірок пройдено.</b> Крім того, пройдено контрольні тести з умови завдання.</div><h2>Список непарних: додавання, інверсії, квадрати</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>k=5, m=3, p=4</td><td>(1 3 5 15 13 11 9 7)</td><td>1 3 5 15 13 11 9 7</td><td><span class='ok'>✓</span></td></tr><tr><td>k=1, m=1, p=1</td><td>(3 1)</td><td>3 1</td><td><span class='ok'>✓</span></td></tr><tr><td>k=8, m=2, p=10</td><td>(1 3 5 7 9 11 13 15 17 19)</td><td>1 3 5 7 9 11 13 15 17 19</td><td><span class='ok'>✓</span></td></tr><tr><td>k=10, m=0, p=3</td><td>(1 3 19 17 15 13 11 9 7 5)</td><td>1 3 19 17 15 13 11 9 7 5</td><td><span class='ok'>✓</span></td></tr><tr><td>k=6, m=5, p=1</td><td>(21 19 17 15 13 11 9 7 5 3 1)</td><td>21 19 17 15 13 11 9 7 5 3 1</td><td><span class='ok'>✓</span></td></tr><tr><td>k=6, m=5, p=11</td><td>(1 3 5 7 9 11 13 15 17 19 21)</td><td>1 3 5 7 9 11 13 15 17 19 21</td><td><span class='ok'>✓</span></td></tr><tr><td>k=3, m=7, p=6</td><td>(1 3 5 7 9 19 17 15 13 11)</td><td>1 3 5 7 9 19 17 15 13 11</td><td><span class='ok'>✓</span></td></tr></table><p><b>7 / 7</b> збігів.</p><h2>Іспит: списки, час, відсутність втрат студентів</h2><table class='t'><tr><th>Вхідні дані</th><th>Результат програми</th><th>Еталон</th><th></th></tr><tr><td>n=7, m=10, seed=42</td><td>склали [1, 2, 6]; перездача [3, 4, 5, 7]; завершено на 35 хв</td><td>склали [1, 2, 6]; перездача [3, 4, 5, 7]; 35 хв</td><td><span class='ok'>✓</span></td></tr><tr><td>n=4, m=20, seed=7</td><td>склали [1, 3]; перездача [2, 4]; завершено на 40 хв</td><td>склали [1, 3]; перездача [2, 4]; 40 хв</td><td><span class='ok'>✓</span></td></tr><tr><td>n=1, m=10, seed=1</td><td>склали [1]; перездача []; завершено на 5 хв</td><td>склали [1]; перездача []; 5 хв</td><td><span class='ok'>✓</span></td></tr><tr><td>n=12, m=14, seed=2026</td><td>склали [1, 3, 6, 8, 9, 12]; перездача [2, 4, 5, 7, 10, 11]; завершено на 84 хв</td><td>склали [1, 3, 6, 8, 9, 12]; перездача [2, 4, 5, 7, 10, 11]; 84 хв</td><td><span class='ok'>✓</span></td></tr><tr><td>n=9, m=10, seed=99</td><td>склали [2, 4, 9]; перездача [1, 3, 5, 6, 7, 8]; завершено на 45 хв</td><td>склали [2, 4, 9]; перездача [1, 3, 5, 6, 7, 8]; 45 хв</td><td><span class='ok'>✓</span></td></tr></table><p><b>5 / 5</b> збігів.</p></section><hr><section id='ai'><h1>Перевірка коду інструментами штучного інтелекту (простота, Clean code)</h1><p>Аналіз коду виконав ШІ-асистент Claude (Anthropic): прочитано кожну програму, перевірено її за критеріями чистого коду й за вимогами завдання, автоматично пораховано метрики та пошук заборонених конструкцій. Нижче — критерії, вимірювання й висновки; випадки, де за результатами перевірки код було змінено, позначені «знайдено й виправлено».</p><h2>Критерії</h2><table class='t'><tr><th>Критерій</th><th>Що перевірялось</th></tr><tr><td>Іменування</td><td>імена відображають зміст (дієслова для дій, іменники для даних)</td></tr><tr><td>Малі функції</td><td>одна процедура — одна відповідальність; довжина процедур</td></tr><tr><td>Відсутність побічних ефектів</td><td>немає set!, змінних стану; значення передаються параметрами</td></tr><tr><td>Відповідність обмеженням</td><td>заборонені конструкції (let, let*, letrec, do, while, for, loop)</td></tr><tr><td>Простота</td><td>немає дублювання обчислень, зайвих абстракцій; коментарі пояснюють «чому», а не «що»</td></tr><tr><td>Коректність і тестованість</td><td>чисті процедури можна перевірити окремо (див. розділ «Оцінка достовірності»)</td></tr></table><div class='card'>Окремих заборон на let у цій лабораторній немає; для єдності стилю програми написано без let/set!/циклів, а таблиці наведено для інформації.</div><h2>Задача 4.1: Список непарних чисел</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>82</td><td>46</td><td>20</td><td>20</td><td>2.3</td><td>7</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Кожна операція — окрема коротка процедура з зрозумілим іменем; допоміжні процедури (<code>take</code>, <code>drop</code>, <code>my-reverse</code>) повторно використовуються в обох інверсіях — немає дублювання.</li><li>Усі структури незмінні; рекурсія спрощує обґрунтування правильності.</li><li><b>Зауваження:</b> <code>add-to-end</code> і <code>my-append</code> копіюють весь перший список (O(n)); для частого додавання краще структура «два списки» (черга) або акумулювання у зворотному порядку.</li><li>Крайні випадки (p = 1, p = довжина, m = 0) перевірено автоматично.</li></ul><h2>Задача 4.2: Модель усного іспиту</h2><table class='t'><tr><th>Рядків</th><th>Рядків коду</th><th>Рядків коментарів</th><th>Процедур</th><th>Середня довжина</th><th>Максимальна довжина</th></tr><tr><td>111</td><td>63</td><td>28</td><td>24</td><td>2.6</td><td>5</td></tr></table><table class='t'><tr><th>let</th><th>let*</th><th>letrec</th><th>set!</th><th>do</th><th>while/for/loop</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table><h3>Висновки перевірки</h3><ul><li>Логіка розбита на невеликі процедури (<code>examine</code>, <code>verdict</code>, <code>add-result</code>); псевдовипадковий генератор винесено окремо — результат відтворюваний і тестується.</li><li><b>Знайдено й виправлено:</b> у першій версії час відповіді обчислювався з «заглушкою» (<code>(quotient 1 1)</code>) і мітки часу не відповідали умові; перероблено: <code>examine</code> приймає початок і тривалість, а події «відповідає» та «оцінка» друкуються в моменти start і start + m/2.</li><li><b>Зауваження (запах коду):</b> <code>run-pair</code>/<code>pair-second</code>/<code>pair-finish</code> мають по 7–8 параметрів, бо заборонено змінний стан. У мові з записами це оформлюється структурою «стан іспиту»; для лабораторної збережено списки параметрів, щоб не вводити додаткову абстракцію.</li></ul><p class='muted'>Примітка: метрики розраховано автоматично; змістовні висновки — експертна оцінка асистента. Перевірку слід розглядати як допоміжну: остаточну відповідальність за код несе автор.</p></section><hr><section id='vysnovok'><h1>Висновок</h1><div class='card'><p>Створено програми для роботи зі списками: генерація списку непарних чисел, додавання елементів у кінець, інверсія частин списку та побудова списку квадратів, а також модель усного іспиту, що відтворює хронологію виклику пар студентів, паралельну підготовку другого студента та формування списків «склав» і «перездача». Показано, що списки Scheme природно підтримують рекурсивну обробку без змінного стану: усі змінні стани передаються параметрами. Автоматичні перевірки (12 порівнянь із Python) підтвердили правильність операцій над списками та інваріанти моделі іспиту.</p></div></section><hr></main></div></body></html>

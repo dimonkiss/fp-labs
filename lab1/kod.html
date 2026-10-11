@@ -1,0 +1,163 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР1: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 1</h2><div class="sub">Використання рекурсії для організації повторювальних процесів<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 1.1: Функція Аккермана</h2><a class='dl' href='../assets/lab1/task1.scm' download>⬇ task1_ackermann.scm</a><pre><code>;; =====================================================================
+;; ЛР1, варіант 3, задача 3.1. Функція Аккермана A(m, n)
+;;   A(0, n) = n + 1
+;;   A(m, 0) = A(m-1, 1)                    при m &gt; 0
+;;   A(m, n) = A(m-1, A(m, n-1))            при m &gt; 0, n &gt; 0
+;; Реалізації: 1) звичайна рекурсія; 2) хвостова рекурсія з акумулятором-стеком;
+;; 3) ітеративний процес (константна глибина керуючого стеку).
+;; Також: підрахунок викликів і глибини рекурсії та порівняння часу виконання.
+;; Обмеження: без let / let* / set! / циклів — лише define, cond, if, lambda.
+;; =====================================================================
+
+;; ---------- 1. Звичайна рекурсія ----------
+(define (ack m n)
+  (cond ((= m 0) (+ n 1))
+        ((= n 0) (ack (- m 1) 1))
+        (else (ack (- m 1) (ack m (- n 1))))))
+
+;; ---------- 2. Хвостова рекурсія ----------
+;; Акумулятор stack зберігає «відкладені» значення m (замість стеку викликів).
+(define (ack-tail m n stack)
+  (cond ((= m 0)
+         (if (null? stack)
+             (+ n 1)
+             (ack-tail (car stack) (+ n 1) (cdr stack))))
+        ((= n 0) (ack-tail (- m 1) 1 stack))
+        (else (ack-tail m (- n 1) (cons (- m 1) stack)))))
+
+;; ---------- 3. Ітеративний процес ----------
+;; Для m &lt;= 3 використовуються замкнені формули (без жодної рекурсії):
+;;   A(0,n)=n+1; A(1,n)=n+2; A(2,n)=2n+3; A(3,n)=2^(n+3)-3.
+;; Для m &gt;= 4 процес виконується хвостовим циклом із явним стеком.
+(define (ack-iter m n)
+  (cond ((= m 0) (+ n 1))
+        ((= m 1) (+ n 2))
+        ((= m 2) (+ (* 2 n) 3))
+        ((= m 3) (- (expt 2 (+ n 3)) 3))
+        (else (ack-tail m n &#x27;()))))
+
+;; ---------- Статистика: кількість викликів і глибина рекурсії ----------
+;; Результат — список (значення  кількість-викликів  максимальна-глибина)
+(define (ack-stat m n d)
+  (cond ((= m 0) (list (+ n 1) 1 d))
+        ((= n 0) (add-call (ack-stat (- m 1) 1 (+ d 1))))
+        (else (outer-step (ack-stat m (- n 1) (+ d 1)) m d))))
+(define (add-call r) (list (car r) (+ 1 (cadr r)) (caddr r)))
+(define (outer-step inner m d)
+  (combine inner (ack-stat (- m 1) (car inner) (+ d 1))))
+(define (combine inner outer)
+  (list (car outer) (+ 1 (cadr inner) (cadr outer)) (max (caddr inner) (caddr outer))))
+
+;; Те саме для хвостової версії: (значення  кількість-кроків  максимальна-довжина-стеку)
+(define (ack-tail-stat m n stack len steps maxlen)
+  (cond ((= m 0)
+         (if (null? stack)
+             (list (+ n 1) (+ steps 1) maxlen)
+             (ack-tail-stat (car stack) (+ n 1) (cdr stack) (- len 1) (+ steps 1) maxlen)))
+        ((= n 0) (ack-tail-stat (- m 1) 1 stack len (+ steps 1) maxlen))
+        (else (ack-tail-stat m (- n 1) (cons (- m 1) stack) (+ len 1) (+ steps 1) (max maxlen (+ len 1))))))
+
+;; ---------- Вимірювання часу ----------
+;; Викликає (f m n) reps разів і повертає середній час у мілісекундах.
+(define (time-of f m n reps)
+  (/ (time-loop f m n reps (current-inexact-milliseconds)) reps))
+(define (time-loop f m n reps start)
+  (if (= reps 0)
+      (- (current-inexact-milliseconds) start)
+      (begin (f m n) (time-loop f m n (- reps 1) start))))
+(define (ack-tail0 m n) (ack-tail m n &#x27;()))
+
+;; ---------- Інтерфейс ----------
+(define (show label value) (display label) (display value) (newline))
+
+(define (report m n)
+  (show &quot;Вхідні дані: m = &quot; m)
+  (show &quot;              n = &quot; n)
+  (newline)
+  (report-stats m n (ack-stat m n 1) (ack-tail-stat m n &#x27;() 0 0 0)))
+
+;; s = (значення викликів глибина) для звичайної рекурсії; t = (значення кроків довжина-стеку) для хвостової.
+;; Статистика обчислюється один раз і передається параметрами (без повторних викликів).
+(define (report-stats m n s t)
+  (display &quot;1) Звичайна рекурсія&quot;)
+  (newline)
+  (show &quot;   A(m, n)               = &quot; (car s))
+  (show &quot;   кількість викликів    = &quot; (cadr s))
+  (show &quot;   глибина рекурсії      = &quot; (caddr s))
+  (display &quot;2) Хвостова рекурсія (акумулятор — стек)&quot;)
+  (newline)
+  (show &quot;   A(m, n)               = &quot; (car t))
+  (show &quot;   кількість кроків      = &quot; (cadr t))
+  (display &quot;   глибина керуючого стеку = 1 (усі виклики хвостові)&quot;)
+  (newline)
+  (show &quot;   макс. довжина стеку-акумулятора = &quot; (caddr t))
+  (display &quot;3) Ітеративний процес&quot;)
+  (newline)
+  (show &quot;   A(m, n)               = &quot; (ack-iter m n))
+  (newline)
+  (show &quot;Перевірка збігу результатів: &quot;
+        (and (= (car s) (car t)) (= (car s) (ack-iter m n)) (= (car s) (ack m n)))))
+
+(define (main)
+  (display &quot;Функція Аккермана. Введіть m: &quot;)
+  (ask-n (read)))
+(define (ask-n m)
+  (display &quot;Введіть n: &quot;)
+  (report-after-input m (read)))
+(define (report-after-input m n)
+  (newline)
+  (report m n))
+
+;; Порівняння ефективності на великих значеннях
+(define (compare m n reps)
+  (display &quot;A(&quot;) (display m) (display &quot;, &quot;) (display n) (display &quot;)  результат = &quot;)
+  (display (ack-iter m n)) (newline)
+  (show &quot;   звичайна рекурсія:  час (мс) = &quot; (time-of ack m n reps))
+  (show &quot;   хвостова рекурсія:  час (мс) = &quot; (time-of ack-tail0 m n reps))
+  (show &quot;   ітеративний процес: час (мс) = &quot; (time-of ack-iter m n reps)))
+</code></pre><h2>Задача 1.2: Прості дільники числа</h2><a class='dl' href='../assets/lab1/task2.scm' download>⬇ task2_prime_factors.scm</a><pre><code>;; =====================================================================
+;; ЛР1, варіант 3, задача 3.2. Прості дільники натурального числа n &gt; 1
+;; у порядку неспадання з урахуванням кратності. Складність O(sqrt(n)).
+;;
+;; Ідея: перебираємо кандидатів d = 2, 3, 4, ... доки d*d &lt;= n.
+;;  - якщо d ділить n, то d — простий дільник (усі менші дільники вже вилучені);
+;;    записуємо d і продовжуємо з n/d (той самий d — перевірка кратності);
+;;  - інакше збільшуємо d;
+;;  - якщо d*d &gt; n, то залишок n &gt; 1 — простий (останній, найбільший дільник).
+;; Тип рекурсії: звичайна (cons після рекурсивного виклику) — результат одразу
+;; утворюється в порядку неспадання, а глибина обмежена кількістю дільників
+;; (&lt;= log2 n); перебір кандидатів d виконується хвостовими викликами.
+;; =====================================================================
+
+(define (prime-factors n)
+  (factors-from n 2))
+
+(define (factors-from n d)
+  (cond ((= n 1) &#x27;())
+        ((&gt; (* d d) n) (list n))
+        ((= (remainder n d) 0) (cons d (factors-from (quotient n d) d)))
+        (else (factors-from n (+ d 1)))))
+
+;; ---------- виведення списку через пробіл ----------
+(define (print-list lst)
+  (cond ((null? lst) (newline))
+        ((null? (cdr lst)) (display (car lst)) (newline))
+        (else (display (car lst)) (display &quot; &quot;) (print-list (cdr lst)))))
+
+;; ---------- перевірка введеного n ----------
+(define (valid? n)
+  (and (integer? n) (&gt; n 1)))
+
+(define (main)
+  (display &quot;Введіть натуральне число n &gt; 1: &quot;)
+  (process (read)))
+
+(define (process n)
+  (if (valid? n)
+      (print-list (prime-factors n))
+      (begin (display &quot;Помилка: потрібне натуральне число n &gt; 1&quot;) (newline))))
+</code></pre></main></div></body></html>

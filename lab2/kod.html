@@ -1,0 +1,162 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР2: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 2</h2><div class="sub">Рекурентні співвідношення для тригонометричних, експоненціальних функцій та ланцюгові дроби<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 2.1: Табуляція Y(x) за рядом Тейлора</h2><a class='dl' href='../assets/lab2/task1.scm' download>⬇ task1_taylor_y.scm</a><pre><code>;; =====================================================================
+;; ЛР2, варіант 3, задача 3.1. Табуляція функції
+;;            | e^(-x) + e^(-2x),     0 &lt;= x &lt;= 2
+;;     Y(x) = |
+;;            | 1 / e^(-(x+5)),       x &gt; 2
+;; де експонента e^z обчислюється розвиненням у ряд Тейлора:
+;;     e^z = 1 + z + z^2/2! + ... + z^k/k! + ...
+;; Рекурентне співвідношення для членів ряду:  a_0 = 1,  a_(k+1) = a_k * z / (k + 1)
+;; (степінь і факторіал не обчислюються заново — кожен член утворюється з попереднього).
+;; Точність eps вводиться з клавіатури (10^-2 ... 10^-6): сума обривається, коли |a_k| &lt; eps.
+;; Тип рекурсії — ХВОСТОВА (акумулятори: поточний член, номер, сума).
+;; Обмеження: без let / let* / set! / циклів.
+;; =====================================================================
+
+;; ---------- e^z за рядом Тейлора (хвостова рекурсія) ----------
+(define (exp-taylor z eps)
+  (exp-sum z eps 1.0 0 0.0))
+
+;; term — поточний член a_k, k — його номер, sum — сума попередніх членів
+(define (exp-sum z eps term k sum)
+  (if (&lt; (abs term) eps)
+      sum
+      (exp-sum z eps (/ (* term z) (+ k 1)) (+ k 1) (+ sum term))))
+
+;; e^(-x), спосіб 1 (прямий): ряд зі знакозмінними членами, z = -x.
+;; При x &gt; 2 члени ряду досягають великих значень з різними знаками, і сума втрачає
+;; значущі цифри (катастрофічне скорочення) — див. аналіз у звіті.
+(define (exp-neg-alt x eps)
+  (exp-taylor (- x) eps))
+
+;; e^(-x), спосіб 2 (стійкий): e^(-x) = 1 / e^x, де e^x обчислюється рядом із членами
+;; одного знака (при x &gt;= 0) — скорочення немає, відносна похибка мала для всіх x.
+(define (exp-neg-stable x eps)
+  (/ 1 (exp-taylor x eps)))
+
+;; Вибір способу: mode = 1 — прямий, mode = 2 — стійкий
+(define (exp-neg x eps mode)
+  (if (= mode 1) (exp-neg-alt x eps) (exp-neg-stable x eps)))
+
+;; ---------- Розгалуження: функція Y ----------
+;; Повертає число або символ &#x27;undefined, якщо x поза областю визначення
+(define (y-taylor x eps mode)
+  (cond ((and (&gt;= x 0) (&lt;= x 2))
+         (+ (exp-neg x eps mode) (exp-neg (* 2 x) eps mode)))
+        ((&gt; x 2)
+         (/ 1 (exp-neg (+ x 5) eps mode)))
+        (else &#x27;undefined)))
+
+;; Еталон — стандартна функція exp
+(define (y-standard x)
+  (cond ((and (&gt;= x 0) (&lt;= x 2)) (+ (exp (- x)) (exp (* -2 x))))
+        ((&gt; x 2) (/ 1 (exp (- (+ x 5)))))
+        (else &#x27;undefined)))
+
+;; ---------- Округлення для виведення ----------
+(define (round-to v digits)
+  (/ (round (* v (expt 10 digits))) (expt 10 digits)))
+
+;; ---------- Виведення одного рядка таблиці ----------
+(define (print-row x eps mode)
+  (print-row-value x (y-taylor x eps mode) (y-standard x)))
+
+;; yt — значення за рядом Тейлора, ys — стандартне значення (обчислені один раз)
+(define (print-row-value x yt ys)
+  (if (eq? yt &#x27;undefined)
+      (begin (display (round-to x 6)) (display &quot;\t&quot;)
+             (display &quot;Функція не визначена&quot;) (newline))
+      (begin (display (round-to x 6)) (display &quot;\t&quot;)
+             (display (round-to yt 8)) (display &quot;\t&quot;)
+             (display (round-to ys 8)) (display &quot;\t&quot;)
+             (display (abs (- yt ys))) (newline))))
+
+;; ---------- Рекурсивна табуляція ----------
+;; i — номер кроку; x = x0 + i*step (так уникаємо накопичення похибки додавання)
+(define (tabulate x0 x1 step eps mode i)
+  (if (&lt;= (+ x0 (* i step)) (+ x1 (/ step 1000)))
+      (begin (print-row (+ x0 (* i step)) eps mode)
+             (tabulate x0 x1 step eps mode (+ i 1)))))
+
+(define (print-header)
+  (display &quot;аргумент\tрозклад Тейлора\tстандартне\tпохибка&quot;) (newline))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Початкове значення x0: &quot;) (ask-x1 (read)))
+(define (ask-x1 x0)
+  (display &quot;Кінцеве значення x1: &quot;) (ask-step x0 (read)))
+(define (ask-step x0 x1)
+  (display &quot;Крок: &quot;) (ask-eps x0 x1 (read)))
+(define (ask-eps x0 x1 step)
+  (display &quot;Точність eps (від 0.01 до 0.000001): &quot;) (ask-mode x0 x1 step (read)))
+(define (ask-mode x0 x1 step eps)
+  (display &quot;Спосіб e^(-x): 1 — прямий ряд, 2 — через 1/e^x: &quot;) (run x0 x1 step eps (read)))
+(define (run x0 x1 step eps mode)
+  (newline)
+  (print-header)
+  (tabulate x0 x1 step eps mode 0))
+</code></pre><h2>Задача 2.2: Ланцюговий дріб для π</h2><a class='dl' href='../assets/lab2/task2.scm' download>⬇ task2_continued_fraction.scm</a><pre><code>;; =====================================================================
+;; ЛР2, варіант 3, задача 3.2. Нескінченний ланцюговий дріб, що збігається до pi:
+;;
+;;                       1^2
+;;     pi = 3 + ---------------------
+;;                          3^2
+;;               6 + ---------------
+;;                            5^2
+;;                     6 + ---------
+;;                           7^2
+;;                          6 + ----
+;;                              6 + ...
+;;
+;; Загальний вигляд: pi = 3 + a_1/(6 + a_2/(6 + a_3/(6 + ...))),  a_k = (2k - 1)^2.
+;; Нескінченний дріб замінюємо скінченним із n ланок. Обчислення ведемо «знизу вгору»
+;; (від ланки n до першої) хвостовою рекурсією з акумулятором d:
+;;     d_n = 6,   d_(k-1) = 6 + a_k / d_k,   pi ~ 3 + 1 / d_1.
+;; Точність eps вводиться з клавіатури: кількість ланок n подвоюється, доки
+;; значення двох послідовних наближень не відрізнятимуться менше ніж на eps.
+;; =====================================================================
+
+;; Квадрат непарного числа a_k = (2k-1)^2
+(define (odd-square k)
+  (* (- (* 2 k) 1) (- (* 2 k) 1)))
+
+;; Обчислення d_1, рухаючись від k = n до k = 1 (акумулятор acc = d_k)
+(define (cf-down k acc)
+  (if (= k 1)
+      acc
+      (cf-down (- k 1) (+ 6.0 (/ (odd-square k) acc)))))
+
+;; Наближене значення pi за n ланками
+(define (cf-pi n)
+  (+ 3.0 (/ 1.0 (cf-down n 6.0))))
+
+;; Подвоєння кількості ланок, доки |pi_2n - pi_n| &gt;= eps
+;; Повертає список (значення  кількість-ланок)
+(define (refine n prev eps)
+  (if (&lt; (abs (- (cf-pi n) prev)) eps)
+      (list (cf-pi n) n)
+      (refine (* 2 n) (cf-pi n) eps)))
+
+(define (compute-pi eps)
+  (refine 2 (cf-pi 1) eps))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Введіть точність eps (наприклад, 0.0001): &quot;)
+  (run (read)))
+
+(define (run eps)
+  (newline)
+  (print-result (compute-pi eps) eps))
+
+(define (print-result r eps)
+  (display &quot;Наближене значення pi  = &quot;) (display (car r)) (newline)
+  (display &quot;Кількість ланок дробу  = &quot;) (display (cadr r)) (newline)
+  (display &quot;Еталон 4*atan(1)       = &quot;) (display (* 4 (atan 1))) (newline)
+  (display &quot;Фактична похибка       = &quot;) (display (abs (- (car r) (* 4 (atan 1))))) (newline)
+  (display &quot;Задана точність        = &quot;) (display eps) (newline))
+</code></pre></main></div></body></html>

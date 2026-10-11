@@ -1,0 +1,184 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ЛР6: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
+<nav><h2>Лабораторна робота № 6</h2><div class="sub">Обробка структур типу векторів і матриць, стеків та черг мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 6.1: Два вектори: найменший спільний елемент</h2><a class='dl' href='../assets/lab6/task1.scm' download>⬇ task1_vectors.scm</a><pre><code>;; =====================================================================
+;; ЛР6, варіант 3, задача 3.1. Два вектори, заповнені псевдовипадковими цілими числами.
+;; Знайти найменший серед елементів ПЕРШОГО вектора, які збігаються зі значеннями
+;; елементів ДРУГОГО вектора. Вивести вектори, знайдений елемент та його індекс
+;; (індекс у першому векторі, відлік з нуля; береться перше входження).
+;; Використано дозволені процедури: vector, vector-ref, vector-length, list-&gt;vector.
+;; Датчик випадкових чисел — власний лінійний конгруентний генератор.
+;; =====================================================================
+
+;; ---------- Псевдовипадкові числа ----------
+(define (next-seed s) (remainder (+ (* s 1103515245) 12345) 2147483648))
+(define (rand-value s max) (+ 1 (remainder (quotient s 65536) max)))   ; 1..max
+
+;; Список із n псевдовипадкових чисел 1..max (seed — початковий стан)
+(define (rand-list n seed max)
+  (if (= n 0)
+      &#x27;()
+      (cons (rand-value (next-seed seed) max)
+            (rand-list (- n 1) (next-seed seed) max))))
+
+(define (random-vector n seed max)
+  (list-&gt;vector (rand-list n seed max)))
+
+;; ---------- Пошук ----------
+;; Чи входить x у вектор v (перевірка індексів від i)
+(define (vector-member? v x i)
+  (cond ((= i (vector-length v)) #f)
+        ((= (vector-ref v i) x) #t)
+        (else (vector-member? v x (+ i 1)))))
+
+;; Перебір першого вектора: best — найменший збіг (або #f), best-i — його індекс
+;; Результат: (значення . індекс) або #f
+(define (find-min v1 v2 i best best-i)
+  (cond ((= i (vector-length v1))
+         (if best (cons best best-i) #f))
+        ((and (vector-member? v2 (vector-ref v1 i) 0)
+              (or (not best) (&lt; (vector-ref v1 i) best)))
+         (find-min v1 v2 (+ i 1) (vector-ref v1 i) i))
+        (else (find-min v1 v2 (+ i 1) best best-i))))
+
+;; ---------- Виведення ----------
+(define (print-vector v) (display v) (newline))
+
+;; ---------- Інтерфейс ----------
+(define (main)
+  (display &quot;Довжина першого вектора: &quot;) (ask-n2 (read)))
+(define (ask-n2 n1)
+  (display &quot;Довжина другого вектора: &quot;) (ask-max n1 (read)))
+(define (ask-max n1 n2)
+  (display &quot;Максимальне значення елементів: &quot;) (ask-seed n1 n2 (read)))
+(define (ask-seed n1 n2 max)
+  (display &quot;Початкове число генератора (seed): &quot;) (run n1 n2 max (read)))
+
+(define (run n1 n2 max seed)
+  (newline)
+  (report (random-vector n1 seed max) (random-vector n2 (+ seed 1) max)))
+
+(define (report v1 v2)
+  (display &quot;Вектор 1: &quot;) (print-vector v1)
+  (display &quot;Вектор 2: &quot;) (print-vector v2)
+  (print-answer (find-min v1 v2 0 #f 0)))
+
+(define (print-answer r)
+  (if r
+      (begin (display &quot;Найменший елемент першого вектора, що є у другому: &quot;) (display (car r)) (newline)
+             (display &quot;Його індекс у першому векторі: &quot;) (display (cdr r)) (newline))
+      (begin (display &quot;Спільних елементів у векторах немає.&quot;) (newline))))
+</code></pre><h2>Задача 6.2: Черга символів (FIFO)</h2><a class='dl' href='../assets/lab6/task2.scm' download>⬇ task2_queue.scm</a><pre><code>;; =====================================================================
+;; ЛР6, варіант 3, задача 3.2. Черга символів (FIFO).
+;;  1) Користувач вводить символи по одному (кожен — в окремому рядку, порожній рядок —
+;;     кінець введення). Після кожного введення виводиться стан черги: новий символ додається в кінець.
+;;  2) Обробка вихідної черги: символ береться з голови; якщо це англійська літера, він
+;;     додається в нову чергу, інакше пропускається. Після кожної операції показується, який символ
+;;     вилучено, та стан обох черг.
+;;  3) Після обробки виводяться підсумкові черги; нова черга перетворюється на список,
+;;     впорядкований за алфавітом.
+;; Чергу подано списком: голова черги — перший елемент, додавання — в кінець.
+;; Бібліотек обробки черг не використовується.
+;; =====================================================================
+
+;; ---------- Операції черги ----------
+(define (make-queue) &#x27;())
+(define (queue-empty? q) (null? q))
+(define (queue-head q) (car q))
+(define (dequeue q) (cdr q))
+(define (enqueue q x)                       ; додавання в кінець черги
+  (if (null? q) (list x) (cons (car q) (enqueue (cdr q) x))))
+
+;; ---------- Символи ----------
+(define (english-letter? c)
+  (or (and (char&gt;=? c #\a) (char&lt;=? c #\z))
+      (and (char&gt;=? c #\A) (char&lt;=? c #\Z))))
+
+(define (lower c)                           ; нижній регістр для англійських літер
+  (if (and (char&gt;=? c #\A) (char&lt;=? c #\Z))
+      (integer-&gt;char (+ (char-&gt;integer c) 32))
+      c))
+
+;; ---------- Виведення черги ----------
+(define (print-queue q)
+  (display &quot;[&quot;)
+  (print-items q)
+  (display &quot;]&quot;))
+(define (print-items q)
+  (cond ((null? q) #t)
+        ((null? (cdr q)) (print-char (car q)))
+        (else (print-char (car q)) (display &quot;, &quot;) (print-items (cdr q)))))
+(define (print-char c) (display &quot;&#x27;&quot;) (display c) (display &quot;&#x27;&quot;))
+
+;; ---------- Введення ----------
+;; Читає один рядок: повертає перший символ рядка або #f, якщо рядок порожній
+(define (read-symbol)
+  (read-symbol-from (read-char)))
+(define (read-symbol-from c)
+  (if (or (eof-object? c) (char=? c #\newline))
+      #f
+      (begin (skip-line (read-char)) c)))
+(define (skip-line c)
+  (if (or (eof-object? c) (char=? c #\newline))
+      #t
+      (skip-line (read-char))))
+
+;; Заповнення вихідної черги
+(define (fill-queue q)
+  (display &quot;Введіть символ (порожній рядок — завершити): &quot;)
+  (fill-with q (read-symbol)))
+(define (fill-with q c)
+  (if c
+      (begin (display &quot;   додано в кінець черги: &quot;) (print-char c) (display &quot;;  черга: &quot;)
+             (print-queue (enqueue q c)) (newline)
+             (fill-queue (enqueue q c)))
+      q))
+
+;; ---------- Обробка ----------
+(define (process src dst)
+  (if (queue-empty? src)
+      (list src dst)
+      (step (queue-head src) (dequeue src) dst)))
+
+(define (step c src dst)
+  (display &quot;Вилучено з голови: &quot;) (print-char c)
+  (if (english-letter? c)
+      (begin (display &quot; — англійська літера, додається в нову чергу&quot;) (newline)
+             (show-state src (enqueue dst c))
+             (process src (enqueue dst c)))
+      (begin (display &quot; — не англійська літера, пропускається&quot;) (newline)
+             (show-state src dst)
+             (process src dst))))
+
+(define (show-state src dst)
+  (display &quot;   вихідна черга: &quot;) (print-queue src) (newline)
+  (display &quot;   нова черга:    &quot;) (print-queue dst) (newline))
+
+;; ---------- Сортування за алфавітом ----------
+;; «менше або дорівнює» за кодом нижнього регістру: символ ставиться перед рівними — сортування стабільне
+(define (before? a b) (&lt;= (char-&gt;integer (lower a)) (char-&gt;integer (lower b))))
+(define (insert-sorted c sorted)
+  (cond ((null? sorted) (list c))
+        ((before? c (car sorted)) (cons c sorted))
+        (else (cons (car sorted) (insert-sorted c (cdr sorted))))))
+(define (sort-chars lst)
+  (if (null? lst) &#x27;() (insert-sorted (car lst) (sort-chars (cdr lst)))))
+
+;; ---------- Головна процедура ----------
+(define (main)
+  (display &quot;=== Введення символів ===&quot;) (newline)
+  (run-process (fill-queue (make-queue))))
+
+(define (run-process src)
+  (newline)
+  (display &quot;=== Обробка черги ===&quot;) (newline)
+  (final (process src (make-queue))))
+
+(define (final r)
+  (newline)
+  (display &quot;=== Підсумок ===&quot;) (newline)
+  (display &quot;Вихідна черга: &quot;) (print-queue (car r)) (newline)
+  (display &quot;Нова черга (англійські літери): &quot;) (print-queue (cadr r)) (newline)
+  (display &quot;Список, впорядкований за алфавітом: &quot;) (display (sort-chars (cadr r))) (newline))
+</code></pre></main></div></body></html>
