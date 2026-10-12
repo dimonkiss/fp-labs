@@ -1,8 +1,8 @@
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ЛР8: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
-<nav><h2>Лабораторна робота № 8</h2><div class="sub">Символьні обчислення мовами функціонального програмування. Операції з многочленами.<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<nav><h2>Лабораторна робота № 8</h2><div class="sub">Символьні обчислення мовами функціонального програмування. Операції з многочленами.<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="clean.html" class="">9. Аналіз коду (простота, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
 <div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
-<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 8.1: Розкладання многочлена на множники</h2><a class='dl' href='../assets/lab8/task1.scm' download>⬇ task_factor.scm</a><pre><code>;; =====================================================================
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket або Guile.</p><div class='card'><b>Мова запуску: The Racket Language</b> (Dr.Racket: <i>Language → Choose Language → The Racket Language</i>; у файл автоматично додається <code>#lang racket</code>), далі <code>(main)</code>. Причина: потрібні <code>file-exists?</code>, <code>delete-file</code>. Перевірено в Racket 9.3 і Guile 3.0 — результати однакові.</div><h2>Задача 8.1: Розкладання многочлена на множники</h2><a class='dl' href='../assets/lab8/task1.scm' download>⬇ task_factor.scm</a><pre><code>;; =====================================================================
 ;; ЛР8, варіант 3. Розкладання многочлена на множники
 ;;     P(x) = a0*x^n + a1*x^(n-1) + ... + a(n-1)*x + an
 ;; Многочлен з цілими коефіцієнтами задано списком (a0 a1 ... an). Процедури:
@@ -15,6 +15,7 @@
 ;;  4) окрема процедура перевіряє розкладання: перемножує множники та порівнює з P(x).
 ;; Результати виводяться на екран і записуються у файл factorization.txt.
 ;; Без бібліотек для поліномів і без let / set! / циклів.
+;; Мова: «The Racket Language» у Dr.Racket (або Guile): використовуються file-exists? та delete-file.
 ;; =====================================================================
 
 ;; ---------- Арифметика цілих ----------
@@ -248,7 +249,7 @@
 ;; ---------- Виведення на екран і в файл ----------
 (define (emit-lines lines port)
   (if (null? lines)
-      #t
+      (cond (#f #f))                          ; нічого не повертаємо (у Racket не друкується «#t»)
       (begin (display (car lines)) (newline) (display (car lines) port) (newline port)
              (emit-lines (cdr lines) port))))
 
@@ -273,6 +274,11 @@
   (newline)
   (if (or (not (= (my-length coeffs) (+ n 1))) (= (car coeffs) 0))
       (begin (display &quot;Помилка: має бути n+1 коефіцієнтів, a0 ≠ 0&quot;) (newline))
-      (call-with-output-file &quot;factorization.txt&quot;
-        (lambda (port) (emit-lines (report-lines coeffs (factorize coeffs)) port)))))
+      (write-report coeffs (factorize coeffs))))
+
+;; Якщо файл уже існує, його спершу видаляємо: у Racket call-with-output-file не перезаписує існуючий файл.
+(define (write-report coeffs r)
+  (cond ((file-exists? &quot;factorization.txt&quot;) (delete-file &quot;factorization.txt&quot;)))
+  (call-with-output-file &quot;factorization.txt&quot;
+    (lambda (port) (emit-lines (report-lines coeffs r) port))))
 </code></pre></main></div></body></html>

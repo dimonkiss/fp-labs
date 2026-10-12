@@ -7,7 +7,9 @@
 ;; Слово — максимальна послідовність літер (знаки пунктуації та пробіли його не входять),
 ;; порівняння слів не залежить від регістру. Використано стандартні R5RS-процедури
 ;; введення-виведення: call-with-output-file, call-with-input-file, read-char, display.
-;; Мова: R5RS (Dr.Racket / Guile). Без let / set! / циклів.
+;; Мова: «The Racket Language» у Dr.Racket (або Guile). Без let / set! / циклів.
+;; Чому не R5RS: у Racket-R5RS немає file-exists? та delete-file, а call-with-output-file
+;; не перезаписує існуючий файл — тому файл перед записом видаляється.
 ;; =====================================================================
 
 ;; ---------- Генерація тексту ----------
@@ -40,7 +42,9 @@
       #t
       (begin (display (car lines) port) (newline port) (write-lines (cdr lines) port))))
 
+;; Якщо файл уже існує, його спершу видаляємо: у Racket call-with-output-file не перезаписує існуючий файл.
 (define (save-lines lines filename)
+  (cond ((file-exists? filename) (delete-file filename)))
   (call-with-output-file filename (lambda (port) (write-lines lines port))))
 
 ;; ---------- Читання рядків із файлу ----------

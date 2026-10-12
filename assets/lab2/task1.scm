@@ -73,9 +73,9 @@
 ;; ---------- Рекурсивна табуляція ----------
 ;; i — номер кроку; x = x0 + i*step (так уникаємо накопичення похибки додавання)
 (define (tabulate x0 x1 step eps mode i)
-  (if (<= (+ x0 (* i step)) (+ x1 (/ step 1000)))
-      (begin (print-row (+ x0 (* i step)) eps mode)
-             (tabulate x0 x1 step eps mode (+ i 1)))))
+  (cond ((<= (+ x0 (* i step)) (+ x1 (/ step 1000)))
+         (print-row (+ x0 (* i step)) eps mode)
+         (tabulate x0 x1 step eps mode (+ i 1)))))
 
 (define (print-header)
   (display "аргумент\tрозклад Тейлора\tстандартне\tпохибка") (newline))

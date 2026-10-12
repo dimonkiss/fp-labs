@@ -22,7 +22,7 @@
 ;; Зупинка: довжина інтервалу (b - a)/2 < eps. Результат — список (корінь  кількість-ітерацій).
 (define (bisection a b eps i show?)
   (let ((c (/ (+ a b) 2)))
-    (if show? (print-iter "бісекція" i c (f c)))
+    (cond (show? (print-iter "бісекція" i c (f c))))
     (cond ((or (= (f c) 0) (< (/ (- b a) 2) eps)) (list c i))
           ((same-sign? (f a) (f c)) (bisection c b eps (+ i 1) show?))
           (else (bisection a c eps (+ i 1) show?)))))
@@ -34,7 +34,7 @@
 ;; Зупинка: |c - c_prev| < eps або f(c) = 0.
 (define (chord a b eps i show? c-prev)
   (let ((c (chord-point a b)))
-    (if show? (print-iter "хорди  " i c (f c)))
+    (cond (show? (print-iter "хорди  " i c (f c))))
     (cond ((or (= (f c) 0) (< (abs (- c c-prev)) eps)) (list c i))
           ((same-sign? (f a) (f c)) (chord c b eps (+ i 1) show? c))
           (else (chord a c eps (+ i 1) show? c)))))

@@ -11,6 +11,7 @@
 ;;  4) окрема процедура перевіряє розкладання: перемножує множники та порівнює з P(x).
 ;; Результати виводяться на екран і записуються у файл factorization.txt.
 ;; Без бібліотек для поліномів і без let / set! / циклів.
+;; Мова: «The Racket Language» у Dr.Racket (або Guile): використовуються file-exists? та delete-file.
 ;; =====================================================================
 
 ;; ---------- Арифметика цілих ----------
@@ -244,7 +245,7 @@
 ;; ---------- Виведення на екран і в файл ----------
 (define (emit-lines lines port)
   (if (null? lines)
-      #t
+      (cond (#f #f))                          ; нічого не повертаємо (у Racket не друкується «#t»)
       (begin (display (car lines)) (newline) (display (car lines) port) (newline port)
              (emit-lines (cdr lines) port))))
 
@@ -269,5 +270,10 @@
   (newline)
   (if (or (not (= (my-length coeffs) (+ n 1))) (= (car coeffs) 0))
       (begin (display "Помилка: має бути n+1 коефіцієнтів, a0 ≠ 0") (newline))
-      (call-with-output-file "factorization.txt"
-        (lambda (port) (emit-lines (report-lines coeffs (factorize coeffs)) port)))))
+      (write-report coeffs (factorize coeffs))))
+
+;; Якщо файл уже існує, його спершу видаляємо: у Racket call-with-output-file не перезаписує існуючий файл.
+(define (write-report coeffs r)
+  (cond ((file-exists? "factorization.txt") (delete-file "factorization.txt")))
+  (call-with-output-file "factorization.txt"
+    (lambda (port) (emit-lines (report-lines coeffs r) port))))

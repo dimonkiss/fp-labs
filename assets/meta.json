@@ -459,9 +459,9 @@
  },
  "7.1": {
   "metrics": {
-   "lines": 129,
-   "code": 84,
-   "comments": 24,
+   "lines": 133,
+   "code": 85,
+   "comments": 27,
    "defines": 28,
    "max_len": 7,
    "avg_len": 3.0,
@@ -532,10 +532,10 @@
  },
  "8.1": {
   "metrics": {
-   "lines": 274,
-   "code": 187,
-   "comments": 48,
-   "defines": 73,
+   "lines": 280,
+   "code": 190,
+   "comments": 50,
+   "defines": 74,
    "max_len": 10,
    "avg_len": 2.6,
    "forbidden": {
@@ -590,8 +590,8 @@
    }
   ],
   "hipo": {
-   "nodes": 52,
-   "edges": 62
+   "nodes": 53,
+   "edges": 63
   }
  }
 }

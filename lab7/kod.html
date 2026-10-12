@@ -1,8 +1,8 @@
 <!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ЛР7: Код — Функціональне програмування</title><link rel="stylesheet" href="../assets/style.css"></head><body><div class="layout">
-<nav><h2>Лабораторна робота № 7</h2><div class="sub">Обробка рядків та файлів мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="ai.html" class="">9. Перевірка коду (AI, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
+<nav><h2>Лабораторна робота № 7</h2><div class="sub">Обробка рядків та файлів мовами функціонального програмування<br>Варіант 3 · Кісіль Д. Р., ІПЗ-41</div><a href="titul.html" class="">1. Титульний лист</a><a href="meta.html" class="">2. Мета роботи</a><a href="umova.html" class="">3. Умова завдання</a><a href="analiz.html" class="">4. Аналіз задачі та математичне забезпечення</a><a href="hipo.html" class="">5. HIPO-діаграма</a><a href="kod.html" class="cur">6. Код</a><a href="skrin.html" class="">7. Скріншот роботи та результату</a><a href="perevirka.html" class="">8. Оцінка достовірності результату</a><a href="clean.html" class="">9. Аналіз коду (простота, Clean code)</a><a href="vysnovok.html" class="">10. Висновок</a>
 <div class="all"><a href="index.html">Зміст звіту</a><a href="report.html">Весь звіт на одній сторінці</a><a href="../index.html">← Усі лабораторні</a></div></nav>
-<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket (мова R5RS: <i>Мова → Обрати мову → Other languages → R5RS</i>) або в Guile.</p><h2>Задача 7.1: Текстові файли: заміна слова</h2><a class='dl' href='../assets/lab7/task1.scm' download>⬇ task1_text_files.scm</a><pre><code>;; =====================================================================
+<main><h1>Код</h1><p>Код наведено текстом (не скріншотом). Файли можна завантажити та запустити в Dr.Racket або Guile.</p><div class='card'><b>Мова запуску: The Racket Language</b> (Dr.Racket: <i>Language → Choose Language → The Racket Language</i>; у файл автоматично додається <code>#lang racket</code>), далі <code>(main)</code>. Причина: потрібні <code>file-exists?</code>, <code>delete-file</code> та стандартна <code>filter</code>. Перевірено в Racket 9.3 і Guile 3.0 — результати однакові.</div><h2>Задача 7.1: Текстові файли: заміна слова</h2><a class='dl' href='../assets/lab7/task1.scm' download>⬇ task1_text_files.scm</a><pre><code>;; =====================================================================
 ;; ЛР7, варіант 3, задача 3.1. Робота з текстовими файлами.
 ;;  1) Програма генерує n рядків тексту й записує їх у файл text_input.txt;
 ;;  2) рядки зчитуються з файлу та виводяться на екран;
@@ -11,7 +11,9 @@
 ;; Слово — максимальна послідовність літер (знаки пунктуації та пробіли його не входять),
 ;; порівняння слів не залежить від регістру. Використано стандартні R5RS-процедури
 ;; введення-виведення: call-with-output-file, call-with-input-file, read-char, display.
-;; Мова: R5RS (Dr.Racket / Guile). Без let / set! / циклів.
+;; Мова: «The Racket Language» у Dr.Racket (або Guile). Без let / set! / циклів.
+;; Чому не R5RS: у Racket-R5RS немає file-exists? та delete-file, а call-with-output-file
+;; не перезаписує існуючий файл — тому файл перед записом видаляється.
 ;; =====================================================================
 
 ;; ---------- Генерація тексту ----------
@@ -44,7 +46,9 @@
       #t
       (begin (display (car lines) port) (newline port) (write-lines (cdr lines) port))))
 
+;; Якщо файл уже існує, його спершу видаляємо: у Racket call-with-output-file не перезаписує існуючий файл.
 (define (save-lines lines filename)
+  (cond ((file-exists? filename) (delete-file filename)))
   (call-with-output-file filename (lambda (port) (write-lines lines port))))
 
 ;; ---------- Читання рядків із файлу ----------
@@ -141,7 +145,7 @@
 ;;     та заперечень («не», «ні»), накопичення балів і лічильника емоційних слів;
 ;;  6) нормалізація: тональність = сума балів / кількість емоційних слів;
 ;;  7) інтерпретація за порогами: &gt; 0.2 — позитивний, &lt; -0.2 — негативний, інакше нейтральний.
-;; Мова: Racket або Guile (потрібна стандартна filter). Без let / set! / циклів.
+;; Мова: «The Racket Language» у Dr.Racket (потрібна стандартна filter) або Guile. Без let / set! / циклів.
 ;; =====================================================================
 
 ;; ---------- 1. Читання файлу ----------
